@@ -38,6 +38,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Date;
 
 /** Index all text files under a directory.
@@ -194,8 +196,14 @@ public class IndexFiles {
           // so that the text of the file is tokenized and indexed, but not stored.
           // Note that FileReader expects the file to be in UTF-8 encoding.
           // If that's not the case searching for special characters will fail.
-          doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(fis, "UTF-8"))));
-
+          //doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(fis, "UTF-8"))));
+          XMLParser p = new XMLParser(file.getPath());
+          ArrayList<Etiqueta> etiq = p.crearEtiquetas();
+          for(int i = 0; i<etiq.size(); i++) {
+        	  System.out.println(file.getPath()+": "+i);
+        	  doc.add(new TextField(etiq.get(i).getTitulo(), 
+        			  new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
+          }
           if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
             // New index, so we just add the document (no old document can be there):
             System.out.println("adding " + file);
