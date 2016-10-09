@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.Date;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -51,10 +52,7 @@ public class SearchFiles {
     }
 
     String index = "index";
-    //String field = "contents";
-    //esto es mio
-    String [] fields =  {"creator","description","format", "identifier",
-			"language","publisher","subject","title","type"};
+    String field = "contents";
     String queries = null;
     int repeat = 0;
     boolean raw = false;
@@ -66,7 +64,7 @@ public class SearchFiles {
         index = args[i+1];
         i++;
       } else if ("-field".equals(args[i])) {
-        //field = args[i+1];
+        field = args[i+1];
         i++;
       } else if ("-queries".equals(args[i])) {
         queries = args[i+1];
@@ -91,7 +89,8 @@ public class SearchFiles {
     
     IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
+    Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
+   // Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
 
     BufferedReader in = null;
     if (queries != null) {
@@ -99,12 +98,7 @@ public class SearchFiles {
     } else {
       in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
     }
-    //Hecho por Jorge
-	QueryParser [] parser = new QueryParser[9];
-    for(int i = 0; i < fields.length; i++) {
-    	 parser[i] = new QueryParser(Version.LUCENE_44, fields[i], analyzer);
-    }
-    //QueryParser parser = new QueryParser(Version.LUCENE_44, field, analyzer);
+    QueryParser parser = new QueryParser(Version.LUCENE_44, field, analyzer);
     while (true) {
       if (queries == null && queryString == null) {                        // prompt the user
         System.out.println("Enter query: ");
@@ -120,32 +114,18 @@ public class SearchFiles {
       if (line.length() == 0) {
         break;
       }
-
-      Query [] query =new Query[9];
-      for(int i = 0; i < fields.length; i++) {
-    	  query[i] = parser[i].parse(line);
-    	  System.out.println("Searching for: " + query[i].toString(fields[i]));
-      }
-      //Query query = parser.parse(line);
-      //System.out.println("Searching for: " + query.toString(field));
+      Query query = parser.parse(line);
+      System.out.println("Searching for: " + query.toString(field));
             
       if (repeat > 0) {                           // repeat & time as benchmark
         Date start = new Date();
         for (int i = 0; i < repeat; i++) {
-        	//mio
-        	for(int j = 0;j< 9; j++) {
-          searcher.search(query[i], 100);
-        	}
-        	 //searcher.search(query, 100);
+        	 searcher.search(query, 100);
         }
         Date end = new Date();
         System.out.println("Time: "+(end.getTime()-start.getTime())+"ms");
       }
-//mio
-      for(int j = 0;j< 9; j++) {
-      doPagingSearch(in, searcher, query[j], hitsPerPage, raw, queries == null && queryString == null);
-      }
-     // doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
+      doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
 
       if (queryString != null) {
         break;

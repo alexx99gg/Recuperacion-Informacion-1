@@ -18,6 +18,7 @@
  */
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -56,7 +57,8 @@ public class IndexFiles {
 	// Para introducir argumentos índice...
 	args = new String[2];
 	args[0] = "-docs";
-	args[1] = "dublinCore";
+	args[1] = "spanishCore";
+	//args[1] = "dublinCore";
     String usage = "java org.apache.lucene.demo.IndexFiles"
                  + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index"
@@ -92,7 +94,8 @@ public class IndexFiles {
       System.out.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(new File(indexPath));
-      Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
+      Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
+      //Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
       IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_44, analyzer);
 
       if (create) {
