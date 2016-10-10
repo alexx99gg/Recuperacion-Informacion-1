@@ -19,7 +19,6 @@
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
@@ -38,7 +37,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -203,7 +201,7 @@ public class IndexFiles {
           XMLParser p = new XMLParser(file.getPath());
           ArrayList<Etiqueta> etiq = p.crearEtiquetas();
           for(int i = 0; i<etiq.size(); i++) {
-        	  System.out.println(file.getPath()+": "+i);
+        	  System.out.println(file.getPath()+": "+etiq.get(i).getTitulo());
         	  doc.add(new TextField(etiq.get(i).getTitulo(), 
         			  new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
           }
