@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<informationNeeds>
+  <informationNeed>
+    <identifier>1</identifier>
+    <text>Querría obtener información sobre Petri Nets o Redes de Petri.</text>
+  </informationNeed>
+  <informationNeed>
+    <identifier>2</identifier>
+    <text>Me gustaría encontrar información sobre sistemas fotovoltaicos
+    para la generación de energía.</text>
+  </informationNeed>
+  <informationNeed>
+    <identifier>3</identifier>
+    <text>Estoy interesesado en la utilización de sistemas informáticos aplicados a las
+    matemáticas. En concreto, el desarrollo de un programa para la resolución de
+    ecuaciaciones lineales.</text>
+  </informationNeed>
+  <informationNeed>
+    <identifier>4</identifier>
+    <text>¿Qué artículos existen sobre Robótica?</text>
+  </informationNeed>
+  <informationNeed>
+    <identifier>5</identifier>
+    <text>Desearía obtener información sobre compartición de ficheros entre varios clientes
+    a través de la red. De entre los mecanismos existentes, tendría preferencia por
+    BitTorrent.</text>
+  </informationNeed>
+</informationNeeds>
