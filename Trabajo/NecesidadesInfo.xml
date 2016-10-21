@@ -7,12 +7,12 @@
   <informationNeed>
     <identifier>2</identifier>
     <text>Me gustaría encontrar información sobre el problema
-	de la descomposición de imágenes en sus componentes intrínsecas.</text>
+    de la descomposición de imágenes en sus componentes intrínsecas.</text>
   </informationNeed>
   <informationNeed>
     <identifier>3</identifier>
-    <text>Estoy interesesado en la utilización de sistemas informáticos aplicados a las
-    matemáticas. En concreto, el desarrollo de un programa para la resolución de
+    <text>Estoy interesesado en la utilización de sistemas informáticos aplicados a
+    las matemáticas. En concreto, el desarrollo de un programa para la resolución de
     ecuaciones lineales.</text>
   </informationNeed>
   <informationNeed>
@@ -21,6 +21,7 @@
   </informationNeed>
   <informationNeed>
     <identifier>5</identifier>
-    <text>Quiero obtener informacion sobre juegos desarrollados con inteligencia artificial.</text>
+    <text>Quiero obtener informacion sobre juegos desarrollados con inteligencia
+    artificial.</text>
   </informationNeed>
 </informationNeeds>
