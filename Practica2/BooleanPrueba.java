@@ -97,11 +97,28 @@ public class BooleanPrueba {
 	      if (line.length() == 0) {
 	        break;
 	      }
+	      
+	      Double east = null, west = null, south = null, north = null;
+	      String primerTermino = line.substring(0,line.indexOf(":"));
+	      if(primerTermino.equals("spatial")){
+	    	  String coordenadas = line.substring(line.indexOf(":")+1,line.indexOf("\t"));
+	    	  west = new Double(Double.parseDouble(coordenadas.substring(
+	    			  						0,coordenadas.indexOf(","))));
+	    	  coordenadas = coordenadas.substring(coordenadas.indexOf(",")+1,
+	    			  	coordenadas.length());
+		      east = new Double(Double.parseDouble(coordenadas.substring(
+						0,coordenadas.indexOf(","))));
+		      coordenadas = coordenadas.substring(coordenadas.indexOf(",")+1,
+	    			  	coordenadas.length());
+		      south = new Double(Double.parseDouble(coordenadas.substring(
+						0,coordenadas.indexOf(","))));
+		      coordenadas = coordenadas.substring(coordenadas.indexOf(",")+1,
+	    			  	coordenadas.length());
+		      north = new Double(Double.parseDouble(coordenadas.substring(
+						0,coordenadas.length())));
+	      }
+	      
 	      BooleanQuery query = new BooleanQuery();
-	      Double east = new Double(180);
-	      Double west = new Double(-180);
-	      Double north = new Double(90);
-	      Double south = new Double(-90);
 	      
 	      NumericRangeQuery<Double> westRangeQuery = NumericRangeQuery.newDoubleRange(
 	    		  "west", null, east, true, true);
