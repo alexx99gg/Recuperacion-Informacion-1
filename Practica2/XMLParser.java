@@ -17,8 +17,8 @@ import org.xml.sax.InputSource;
 public class XMLParser {
 	
 	// Lista de etiquetas a obtener.
-	private static final String[] LISTA = {"BoundingBox", "creator","description","format",
-		"identifier", "language","publisher","subject","title","type",};
+	private static final String[] LISTA = {"BoundingBox", "created", "creator","description","format",
+		"identifier", "issued", "language","publisher","subject","temporal", "title","type",};
 	// Ficheros a analizar.
     private static FileInputStream fis;
 
@@ -67,8 +67,8 @@ public class XMLParser {
 							nodes.item(i).getNodeName().lastIndexOf(":")+1);
 				String contenido = nodes.item(i).getTextContent();
 				if(estaEnLista(nombre)) {	// Comprobamos si es etiqueta requerida.
-					if(nombre.equals("BoundingBox")){
-						System.out.println("hola");
+					if(nombre.equals("BoundingBox")){	// Si es etiqueta espacial...
+						// Obtenemos las coordendas.
 						String [] coord = contenido.split(" +");
 						double [] coordenadas = new double [4];
 						int indice = 0;
@@ -82,7 +82,48 @@ public class XMLParser {
 						Coordenadas coordenada = new Coordenadas(coordenadas[0],
 								coordenadas[1],coordenadas[2],coordenadas[3]);
 						etiq.add(new Etiqueta (nombre,coordenada));
-					} else{
+					} else if((nombre.equals("issued") || nombre.equals("created"))
+							&& contenido.length()>1){
+						// Si es etiqueta temporal...
+						// Obtenemos las partes de la fecha.
+						String año = contenido.substring(0,contenido.indexOf("-"));
+						String mes = contenido.substring(contenido.indexOf("-")+1,
+									contenido.lastIndexOf("-"));
+						String dia = contenido.substring(contenido.lastIndexOf("-")+1,
+								contenido.length());
+						// Creamos la fecha.
+						String fecha = año+mes+dia;
+						// Introducimos la etiqueta.
+						etiq.add(new Etiqueta (nombre,fecha));
+					} else if(nombre.equals("temporal")){
+						// Si es temporal con contenido...
+						if(contenido.indexOf("=")>-1){
+							String begin = contenido.substring(contenido.indexOf("=")+1,
+									contenido.indexOf(";"));
+							String end = contenido.substring(contenido.lastIndexOf("=")+1,
+									contenido.lastIndexOf(";"));
+							// Partimos la fecha.
+							String año = begin.substring(0,begin.indexOf("-"));
+							String mes = begin.substring(begin.indexOf("-")+1,
+										begin.lastIndexOf("-"));
+							String dia = begin.substring(begin.lastIndexOf("-")+1,
+									begin.length());
+							// Creamos la fecha.
+							String fecha = año+mes+dia;
+							// Introducimos la etiqueta.
+							etiq.add(new Etiqueta ("begin",Integer.parseInt(fecha)));
+							// Partimos la fecha.
+							año = end.substring(0,end.indexOf("-"));
+							mes = end.substring(end.indexOf("-")+1,
+										end.lastIndexOf("-"));
+							dia = end.substring(end.lastIndexOf("-")+1,
+									end.length());
+							// Creamos la fecha.
+							fecha = año+mes+dia;
+							// Introducimos la etiqueta.
+							etiq.add(new Etiqueta ("end",Integer.parseInt(fecha)));
+						}
+					} else{		// Si es etiqueta normal...
 						// Introducimos la etiqueta.
 						etiq.add(new Etiqueta (nombre,contenido));
 					}

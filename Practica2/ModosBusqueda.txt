@@ -1,0 +1,5 @@
+Modos de búsqueda:
+Modo 1 (solo espacial): spatial:c1,c2,c3,c4
+Modo 2 (espacial+otras): spatial:c1,c2,c3,c4*otras
+Modo 3 (otras): otra AND/OR otra
+Modo 4 (temporal): temporal:[fecha1 TO fecha2]

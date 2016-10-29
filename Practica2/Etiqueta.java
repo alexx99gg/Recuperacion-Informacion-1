@@ -9,7 +9,8 @@ public class Etiqueta {
 	private String titulo;	// Título del documento.
 	private String contenido;	// Contenido del documento.
 	private Coordenadas coordenadas; // Coordenadas si es bounding box.
-	
+	private int fecha;	// Fecha temporal.
+
 	/*
 	 * Constructor de un objeto Etiqueta.
 	 */
@@ -24,6 +25,14 @@ public class Etiqueta {
 	public Etiqueta (String titulo, Coordenadas coordenadas){
 		this.titulo = titulo;
 		this.coordenadas = coordenadas;
+	}
+	
+	/*
+	 * Constructor de un objeto Etiqueta.
+	 */
+	public Etiqueta (String titulo, int fecha){
+		this.titulo = titulo;
+		this.fecha = fecha;
 	}
 
 	/*
@@ -68,5 +77,17 @@ public class Etiqueta {
 		this.coordenadas = coordenadas;
 	}
 	
-	
+	/*
+	 * Método que devuelve la fecha temporal de la etiqueta.
+	 */
+	public int getFecha() {
+		return fecha;
+	}
+
+	/*
+	 * Método que fija la fecha temporal de la etiqueta.
+	 */
+	public void setFecha(int fecha) {
+		this.fecha = fecha;
+	}
 }

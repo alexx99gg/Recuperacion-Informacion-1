@@ -22,6 +22,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -57,13 +58,13 @@ public class IndexFiles {
 	// Para introducir argumentos índice...
 	args = new String[2];
 	args[0] = "-docs";
-	//args[1] = "spanishCore";
-	args[1] = "dublinCore";
+	//args[1] = "spanishCore2";
+	args[1] = "dublinCore2";
     String usage = "java org.apache.lucene.demo.IndexFiles"
                  + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index"
                  + "in INDEX_PATH that can be searched with SearchFiles";
-    String indexPath = "index";
+    String indexPath = "index2";
     String docsPath = null;
     boolean create = true;
     for(int i=0;i<args.length;i++) {
@@ -214,7 +215,18 @@ public class IndexFiles {
         		  doc.add(coord);
         		  coord = new DoubleField("south",coordenadas.getSur(),Field.Store.YES);
         		  doc.add(coord);
-        	  } else{
+        	  } else if(etiq.get(i).getTitulo().equals("issued") ||
+        			  etiq.get(i).getTitulo().equals("created")){
+        		  // Si es temporal...
+        		  doc.add(new StringField(etiq.get(i).getTitulo(), 
+            			  etiq.get(i).getContenido(),Field.Store.YES));
+        	  } else if(etiq.get(i).getTitulo().equals("begin")
+        			  || etiq.get(i).getTitulo().equals("end")){
+        		  // Si es temporal...
+        		  doc.add(new IntField(etiq.get(i).getTitulo(), 
+            			  etiq.get(i).getFecha(),Field.Store.YES));
+        		  System.out.println(etiq.get(i).getFecha());
+        	  }	else{		// Si es de otro tipo...
         		  doc.add(new TextField(etiq.get(i).getTitulo(), 
             			  new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
         	  }
