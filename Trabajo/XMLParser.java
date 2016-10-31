@@ -16,11 +16,14 @@ import org.xml.sax.InputSource;
  */
 public class XMLParser {
 	
+	String prueba = "Universidad de Zaragoza, Prensas de la Universidad";
+	
 	// Lista de las etiquetas a leer.
 	private static final String[] LISTA = {"creator", "date", "description",
 			"identifier", "language", "publisher", "title"};
 	// Fichero de entrada.
     private static FileInputStream fis;
+    private static String fichero;
 
     /*
      * Método constructor de un objeto XMLParser.
@@ -29,10 +32,10 @@ public class XMLParser {
 		
 		try {
 			fis = new FileInputStream(nombre);
+			fichero = nombre;
 		} catch (Exception ex) {
 	         ex.printStackTrace();
-		}
-		
+		}	
 	}
 	
 	/*
@@ -61,9 +64,9 @@ public class XMLParser {
 	    	// Obtenemos una lista con las etiquetas y contenidos.
 	    	NodeList nodes = element.getChildNodes();
 
-	    	// print the text content of each child
-	    	int i = 0;
-	    	boolean finalizado = false;
+	    	// Recorremos todos los nodos hijos.
+	    	int i = 0;		// Indice para el recorrido.
+	    	boolean finalizado = false;	// Booleano para terminar.
 	        while(!finalizado) {	// Recorremos las etiquetas.
 	        	// Obtenemos el nombre y el contenido.
 	        	String nombre = nodes.item(i).getNodeName()
@@ -71,14 +74,28 @@ public class XMLParser {
 	        	String contenido = nodes.item(i).getTextContent();
 	        	i = i + 1;
 	        	if(estaEnLista(nombre)) {	// Si está en la lista...
-	        		// Si ya está en la lista, se concatena al final.
+	        		// Si ya ha sido leida una con ese nombre...
 	        		if(titulos.contains(nombre)) {
-	        			int indice = titulos.indexOf(nombre);
-	        			etiq.get(indice).setContenido(etiq.get(indice).
-	        					getContenido()+"\n"+contenido);
+	        			// Si no es título ya que puede estar repetido.
+	        			if(!nombre.equals("title")){
+	        				// Si es identificador puede ser de dos tipos.
+	        				if(nombre.equals("identifier")){
+	        					int indice = titulos.indexOf(nombre);
+	        					comprobarIdentifier(etiq,contenido,indice);
+	        				} else{	// En otro caso, se concatena al final.
+		        				int indice = titulos.indexOf(nombre);
+			        			etiq.get(indice).setContenido(etiq.get(indice).
+			        					getContenido()+"\n"+contenido);
+	        				}
+	        			}
 	        		} else {	// Si no está en la lista, se añade.
+	        			if(nombre.equals("date")){
+	        				//System.out.println(contenido);
+	        				etiq.add(new Etiqueta(nombre,Integer.parseInt(contenido)));
+	        			} else{
+		        			etiq.add(new Etiqueta (nombre,contenido));
+	        			}	        				
 	        			titulos.add(nombre);
-	        			etiq.add(new Etiqueta (nombre,contenido));
 	        		}
 	        		if ( i == nodes.getLength()) {
 	        			finalizado = true;	// Se comprueba el límite.
@@ -88,9 +105,12 @@ public class XMLParser {
 	        		finalizado = true;	// Se comprueba el límite.
 	        	}
 	        }
+	        if(!titulos.contains("language")){	// Miramos si no tenía idioma.
+	        	etiq.add(new Etiqueta("language","spa"));
+	        }
 	        return etiq;	// Se devuelve la etiqueta.
 	    } catch (Exception e) {	// Se captura la posible excepción.
-	    	System.err.println("Error en el parser: " + e.getMessage());
+	    	System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());
 	    }
 	    return etiq;
 	}
@@ -116,5 +136,23 @@ public class XMLParser {
 			}
 		}
 		return false;
+	}
+	
+	/*
+	 * Método que comprueba si un cierto identificador ya ha sido leído.
+	 */
+	private void comprobarIdentifier(ArrayList<Etiqueta> etiq,
+			String contenido, int indice){
+		
+		Etiqueta etiqueta = etiq.get(indice);	// Obtenemos la etiqueta.
+		if(!contenido.contains("zaguan")){	// Si el contenido no tiene zaguan se indexa.
+			etiqueta.setContenido(etiq.get(indice).
+					getContenido()+"\n"+contenido);
+		} else{	// Si contiene zaguan se mira para no meter repetidos.
+			if(!etiqueta.getContenido().contains("zaguan")){
+				etiqueta.setContenido(etiq.get(indice).
+						getContenido()+"\n"+contenido);
+			}
+		}
 	}
 }

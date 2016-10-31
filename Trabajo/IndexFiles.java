@@ -8,7 +8,6 @@ import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -54,6 +53,7 @@ public class IndexFiles {
 
 	      // Crea el analizador en español.
 	      Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
+	      
 	      // Crea el objeto para configurar el indexador de documentos.
 	      IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_44, analyzer);
 
@@ -162,8 +162,14 @@ public class IndexFiles {
 						System.out.println("Indexando etiqueta" + file.getPath()+" : "
 										+etiq.get(i).getTitulo());
 						// Indexa la etiqueta.
-						doc.add(new TextField(etiq.get(i).getTitulo(), 
-								new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
+						if(etiq.get(i).getTitulo().equals("date")){
+							// Comprueba si es fecha.
+							doc.add(new IntField(etiq.get(i).getTitulo(), 
+									etiq.get(i).getFecha(),Field.Store.YES));
+						} else{	// Si es otro caso...
+							doc.add(new TextField(etiq.get(i).getTitulo(), 
+									new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
+						}
 						/*if(etiq.get(i).getTitulo().equals("BoundingBox")){
 							Coordenadas coordenadas = etiq.get(i).getCoordenadas();
 							DoubleField coord = new DoubleField("west",coordenadas.getOeste(),Field.Store.YES);
