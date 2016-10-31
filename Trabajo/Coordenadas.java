@@ -1,4 +1,4 @@
-package trabajo;
+package Trabajo;
 
 /**
  * Clase que representa una abstracción de una serie

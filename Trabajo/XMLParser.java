@@ -1,4 +1,4 @@
-package trabajo;
+package Trabajo;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -15,12 +15,12 @@ import org.xml.sax.InputSource;
  * las etiquetas y su contenido.
  */
 public class XMLParser {
-	
-	String prueba = "Universidad de Zaragoza, Prensas de la Universidad";
-	
-	// Lista de las etiquetas a leer.
-	private static final String[] LISTA = {"creator", "date", "description",
+		
+	// Lista de las etiquetas a leer para indexar.
+	private static final String[] LISTADOCS = {"creator", "date", "description",
 			"identifier", "language", "publisher", "title"};
+	// Lista de etiquetas a leer de una necesidad de información.
+	private static final String[] LISTANEEDS = {"identifier", "text"};
 	// Fichero de entrada.
     private static FileInputStream fis;
     private static String fichero;
@@ -34,15 +34,15 @@ public class XMLParser {
 			fis = new FileInputStream(nombre);
 			fichero = nombre;
 		} catch (Exception ex) {
-	         ex.printStackTrace();
+	         System.err.println("Fichero " + nombre + " no encontrado.");
 		}	
 	}
 	
 	/*
 	 * Método que recorre la estructurra devuelta por el parser
-	 * y crea la lista de etiquetas.
+	 * y crea la lista de etiquetas de un documento a indexar.
 	 */
-	public ArrayList<Etiqueta> crearEtiquetas() {
+	public ArrayList<Etiqueta> parserDocs() {
 
 		// Crea el factory para parsear el documento.
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -67,13 +67,13 @@ public class XMLParser {
 	    	// Recorremos todos los nodos hijos.
 	    	int i = 0;		// Indice para el recorrido.
 	    	boolean finalizado = false;	// Booleano para terminar.
-	        while(!finalizado) {	// Recorremos las etiquetas.
+	        while(!finalizado) {	// Recorremos los nodos.
 	        	// Obtenemos el nombre y el contenido.
 	        	String nombre = nodes.item(i).getNodeName()
 	        			.substring(nodes.item(i).getNodeName().lastIndexOf(":")+1);
 	        	String contenido = nodes.item(i).getTextContent();
 	        	i = i + 1;
-	        	if(estaEnLista(nombre)) {	// Si está en la lista...
+	        	if(estaEnLista(nombre, LISTADOCS)) {	// Si está en la lista...
 	        		// Si ya ha sido leida una con ese nombre...
 	        		if(titulos.contains(nombre)) {
 	        			// Si no es título ya que puede estar repetido.
@@ -122,16 +122,16 @@ public class XMLParser {
 	 * Método que realiza una búsqueda dicotómica sobre la lista
 	 * para saber si una cierta etiqueta existe en la misma o no.
 	 */
-	private boolean estaEnLista(String titulo) {
+	private boolean estaEnLista(String titulo, String[] lista) {
 		
-		int n = LISTA.length;	// Obtiene el tamaño.
+		int n = lista.length;	// Obtiene el tamaño.
 		int centro,inf=0,sup=n-1;	// Inicializa límites.
 		while(inf<=sup){	// Bucle que recorre los elementos.
 			centro=(sup+inf)/2;		// Actualiza el centro.
-			if(LISTA[centro].equals(titulo)){
+			if(lista[centro].equals(titulo)){
 				return true;		// Si coincide con el centro...
 			}
-			else if(titulo.compareTo(LISTA[centro]) < 0){
+			else if(titulo.compareTo(lista[centro]) < 0){
 				sup=centro-1;		// Si es menor, se actualiza superior...
 			}
 			else {
@@ -190,5 +190,51 @@ public class XMLParser {
 				idioma = "";
 		}
 		return idioma;
+	}
+	
+	/*
+	 * Método que recorre la estructurra devuelta por el parser
+	 * y crea la lista de consultas de una necesidad de información.
+	 */
+	public ArrayList<Consulta> parserNeeds() {
+		
+		// Crea el factory para parsear el documento.
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+		// Lista con las consultas.
+		ArrayList<Consulta> consultas = new ArrayList<Consulta>();
+		try {
+			// Crea el objeto que hará el parser del XML.
+			DocumentBuilder builder = factory.newDocumentBuilder();
+
+			// Crea el nuevo documento.
+			InputSource is = new InputSource(fis);
+			Document doc = builder.parse(is);
+
+			// Obtenemos el primer elemento.
+			Element element = doc.getDocumentElement();
+
+			// Obtenemos una lista con las etiquetas y contenidos.
+			NodeList nodes = element.getChildNodes();
+
+			// Recorremos todos los nodos hijos.
+			int i = 0;		// Indice para el recorrido.
+			boolean finalizado = false;	// Booleano para terminar.
+			while(!finalizado) {	// Recorremos los nodos.
+				// Obtenemos el contenido.
+				String contenido = nodes.item(i).getTextContent();
+				String [] coord = contenido.split(" ||\n");
+				for(int j=0; j<coord.length; j++){
+					System.out.println(coord[j]);
+				}
+				i = i + 1;
+				System.out.println(contenido);
+				
+			}
+			return consultas;	// Se devuelve las consultas.
+		} catch (Exception e) {	// Se captura la posible excepción.
+			System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());
+		}
+		return consultas;
 	}
 }

@@ -1,4 +1,4 @@
-package trabajo;
+package Trabajo;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
@@ -11,7 +11,6 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -25,7 +24,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 
-/** Index all text files under a directory.
+/** 
  * Clase que indexa todos los ficheros en un cierto directorio.
  */
 public class IndexFiles {
@@ -33,7 +32,7 @@ public class IndexFiles {
 	private static File docDir; // Directorio de los documentos a indexar.
 	private static Directory dir; // Directorio donde se guarda el índice.
 	
-	/**
+	/*
 	 * Método principal que indexa todos los ficheros en un directorio dado.
 	 */
 	public static void main(String[] args) {
@@ -43,7 +42,6 @@ public class IndexFiles {
 		args[1] = "indexTrabajo";
 		args[2] = "-docs";
 		args[3] = "recordsdc";
-		
 		
 		comprobarArgumentos(args);	// Se comprueban los argumentos.
 		
@@ -77,7 +75,7 @@ public class IndexFiles {
 	}
 
 	/*
-	 * Método que comprueba si los argumentos de la invocación son corrector.
+	 * Método que comprueba si los argumentos de la invocación son correctos.
 	 */
 	public static void comprobarArgumentos(String [] argumentos){
 		
@@ -116,7 +114,7 @@ public class IndexFiles {
 	*/
 	private static void indexarDocumentos(IndexWriter writer, File file)
 			throws IOException {
-		// do not try to index files that cannot be read
+		
 		if (file.canRead()) {		// Comprueba si se puede leer el directorio.
 			if (file.isDirectory()) {	// Comprueba si es directorio.
 				// Si es directorio...
@@ -142,10 +140,7 @@ public class IndexFiles {
 				try {
 					Document doc = new Document();	// Crea un objeto documento.
 
-					// Add the path of the file as a field named "path".  Use a
-					// field that is indexed (i.e. searchable), but don't tokenize 
-					// the field into separate words and don't index term frequency
-					// or positional information:
+					// Añaidmos el path.
 					Field pathField = new StringField("path", file.getPath(), Field.Store.YES);
 					doc.add(pathField);
 
@@ -155,7 +150,7 @@ public class IndexFiles {
 					// Crea el parser para el documento.
 					XMLParser p = new XMLParser(file.getPath());
 					// Obtiene las etiquetas del documento.
-					ArrayList<Etiqueta> etiq = p.crearEtiquetas();
+					ArrayList<Etiqueta> etiq = p.parserDocs();
 					// Recorre las etiquetas indexando el contenido.
 					for(int i = 0; i<etiq.size(); i++) {
 						// Indica por pantalla que se está indexando.
@@ -170,31 +165,6 @@ public class IndexFiles {
 							doc.add(new TextField(etiq.get(i).getTitulo(), 
 									new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
 						}
-						/*if(etiq.get(i).getTitulo().equals("BoundingBox")){
-							Coordenadas coordenadas = etiq.get(i).getCoordenadas();
-							DoubleField coord = new DoubleField("west",coordenadas.getOeste(),Field.Store.YES);
-							doc.add(coord);
-							coord = new DoubleField("east",coordenadas.getEste(),Field.Store.YES);
-							doc.add(coord);
-							coord = new DoubleField("north",coordenadas.getNorte(),Field.Store.YES);
-							doc.add(coord);
-							coord = new DoubleField("south",coordenadas.getSur(),Field.Store.YES);
-							doc.add(coord);
-						} else if(etiq.get(i).getTitulo().equals("issued") ||
-								etiq.get(i).getTitulo().equals("created")){
-			        		  	// Si es temporal...
-			        		  	doc.add(new StringField(etiq.get(i).getTitulo(), 
-			        		  			etiq.get(i).getContenido(),Field.Store.YES));
-						} else if(etiq.get(i).getTitulo().equals("begin")
-								|| etiq.get(i).getTitulo().equals("end")){
-							// Si es temporal...
-							doc.add(new IntField(etiq.get(i).getTitulo(), 
-									etiq.get(i).getFecha(),Field.Store.YES));
-							System.out.println(etiq.get(i).getFecha());
-						}	else{		// Si es de otro tipo...
-							doc.add(new TextField(etiq.get(i).getTitulo(), 
-									new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
-						}*/
 					}
 					// Indica por pantalla el documento indexado.
 					System.out.println("Indexando documento: " +  file);
@@ -203,7 +173,7 @@ public class IndexFiles {
 					fis.close();		// Se cierra el canal.
 				}
 			}
-		} else{
+		} else{	// Se indica que le directorio no se puede leer.
 			System.err.println("El directorio " + file.getAbsolutePath() 
 					+ " no se puede leer.");		
 		}

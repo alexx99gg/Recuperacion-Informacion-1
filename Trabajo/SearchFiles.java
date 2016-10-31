@@ -1,27 +1,14 @@
-package trabajo;
+package Trabajo;
 
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -35,65 +22,51 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
-/** Simple command-line based search demo. */
+/**
+ * Clase que realiza el parseo y la búsqueda de unas determinadas
+ * necesidades de información sobre un índice dado. Guarda los
+ * resultados en un cierto fichero.
+ *
+ */
 public class SearchFiles {
 
-  private SearchFiles() {}
-
-  /** Simple command-line based search demo. */
-  public static void main(String[] args) throws Exception {
-    String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
-    if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
-      System.out.println(usage);
-      System.exit(0);
-    }
-
-    String index = "indexTrabajo";
-    String field = "contents";
-    String queries = null;
-    int repeat = 0;
-    boolean raw = false;
-    String queryString = null;
-    int hitsPerPage = 10;
+	private static PrintWriter ficheroSal;	// Fichero de resultados.
+	
+	/*
+	 * Método principal que parsea la consulta y la realiza sobre
+	 * el índice.
+	 */
+	public static void main(String[] args) throws Exception {
     
-    for(int i = 0;i < args.length;i++) {
-      if ("-index".equals(args[i])) {
-        index = args[i+1];
-        i++;
-      } else if ("-field".equals(args[i])) {
-        field = args[i+1];
-        i++;
-      } else if ("-queries".equals(args[i])) {
-        queries = args[i+1];
-        i++;
-      } else if ("-query".equals(args[i])) {
-        queryString = args[i+1];
-        i++;
-      } else if ("-repeat".equals(args[i])) {
-        repeat = Integer.parseInt(args[i+1]);
-        i++;
-      } else if ("-raw".equals(args[i])) {
-        raw = true;
-      } else if ("-paging".equals(args[i])) {
-        hitsPerPage = Integer.parseInt(args[i+1]);
-        if (hitsPerPage <= 0) {
-          System.err.println("There must be at least 1 hit per page.");
-          System.exit(1);
-        }
-        i++;
-      }
-    }
+		args = new String [6];
+		args[0] = "-index";
+		args[1] = "indexTrabajo";
+		args[2] = "-infoNeeds";
+		args[3] = "NecesidadesInfo.xml";
+		args[4] = "-output";
+		args[5] = "resultados.txt";
+		
+		comprobarArgumentos(args);	// Comprobamos los argumentos.
     
-    IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(index)));
-    IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
-   // Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
+		// Creamos el índice para lectura.
+		IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(args[1])));
+		IndexSearcher searcher = new IndexSearcher(reader);
+		// Creamos el analizador.
+		Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
 
-    BufferedReader in = null;
+		// Creamos el parser para las consultas.
+		XMLParser parserXML = new XMLParser(args[3]);
+		// Creamos lista de consultas.
+		ArrayList<Consulta> consultas = parserXML.parserNeeds();
+		
+		/*
+		 * Seguir aquí.
+		 */
+		/*BufferedReader in = null;
     if (queries != null) {
       in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), "UTF-8"));
     } else {
@@ -132,7 +105,7 @@ public class SearchFiles {
         break;
       }
     }
-    reader.close();
+    reader.close();*/
   }
 
   /**
@@ -234,4 +207,34 @@ public class SearchFiles {
       }
     }
   }
+  
+  	/*
+	 * Método que comprueba si los argumentos de la invocación son correctos.
+	 */
+	public static void comprobarArgumentos(String [] argumentos){
+		
+		if(argumentos.length != 6){	// Comprueba el número de argumentos.
+			System.err.println("Usar: java SearchFiles -index <indexPath>"
+					+ " -infoNeeds <infoNeedsFile> -output <resultsFile>");
+			System.exit(-1);
+		}
+		if(!argumentos[0].equals("-index")){		// Comprueba primer argumento.
+			System.err.println("Primer argumento: -index");
+			System.exit(-1);
+		}
+		if(!argumentos[2].equals("-infoNeeds")){		// Comprueba segundo argumento.
+			System.err.println("Segundo argumento: -infoNeeds");
+			System.exit(-1);
+		}
+		if(!argumentos[4].equals("-output")){		// Comprueba cuarto argumento.
+			System.err.println("Segundo argumento: -output");
+			System.exit(-1);
+		}
+		
+		try{		// Creamos el fichero de salida.
+			ficheroSal = new PrintWriter(new FileWriter(argumentos[5]));
+		} catch(Exception e){	// Capturamos las posibles excepciones.
+			System.err.println("Error al crear el fichero: " + argumentos[5]);
+		}
+	}
 }
