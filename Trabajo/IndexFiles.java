@@ -1,4 +1,4 @@
-package Trabajo;
+package trabajo;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;

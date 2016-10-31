@@ -1,4 +1,4 @@
-package Trabajo;
+package trabajo;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -82,7 +82,8 @@ public class XMLParser {
 	        				if(nombre.equals("identifier")){
 	        					int indice = titulos.indexOf(nombre);
 	        					comprobarIdentifier(etiq,contenido,indice);
-	        				} else{	// En otro caso, se concatena al final.
+	        				} else if(!nombre.equals("description")){	
+	        					// En otro caso, (salvo que sea descripcion), se concatena al final.
 		        				int indice = titulos.indexOf(nombre);
 			        			etiq.get(indice).setContenido(etiq.get(indice).
 			        					getContenido()+"\n"+contenido);
@@ -92,6 +93,8 @@ public class XMLParser {
 	        			if(nombre.equals("date")){
 	        				//System.out.println(contenido);
 	        				etiq.add(new Etiqueta(nombre,Integer.parseInt(contenido)));
+	        			} else if(nombre.equals("language")) {
+		        			etiq.add(new Etiqueta (nombre,obtenerIdioma(contenido)));
 	        			} else{
 		        			etiq.add(new Etiqueta (nombre,contenido));
 	        			}	        				
@@ -106,7 +109,7 @@ public class XMLParser {
 	        	}
 	        }
 	        if(!titulos.contains("language")){	// Miramos si no tenía idioma.
-	        	etiq.add(new Etiqueta("language","spa"));
+	        	etiq.add(new Etiqueta("language","español"));
 	        }
 	        return etiq;	// Se devuelve la etiqueta.
 	    } catch (Exception e) {	// Se captura la posible excepción.
@@ -154,5 +157,38 @@ public class XMLParser {
 						getContenido()+"\n"+contenido);
 			}
 		}
+	}
+	
+	/*
+	 * Obtiene el nombre del idioma a partir de una abreviatura del mismo.
+	 */
+	private String obtenerIdioma(String abreviatura) {
+		String idioma = "";
+		switch(abreviatura) {
+			case "spa":
+				idioma = "español";
+				break;
+			case "eng":
+				idioma = "ingles";
+				break;
+			case "ita":
+				idioma = "italiano";
+				break;
+			case "fre":
+				idioma = "frances";
+				break;
+			case "ger":
+				idioma = "aleman";
+				break;
+			case "por":
+				idioma = "portugues";
+				break;
+			case "en":
+				idioma = "ingles";
+				break;
+			default:
+				idioma = "";
+		}
+		return idioma;
 	}
 }
