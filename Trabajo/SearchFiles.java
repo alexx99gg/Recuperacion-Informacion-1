@@ -89,6 +89,7 @@ public class SearchFiles {
         break;
       }
       Query query = parser.parse(line);
+      obtenerTokens(query);
       System.out.println("Searching for: " + query.toString(field));
             
       if (repeat > 0) {                           // repeat & time as benchmark
@@ -208,6 +209,7 @@ public class SearchFiles {
     }
   }
   
+<<<<<<< HEAD
   	/*
 	 * Método que comprueba si los argumentos de la invocación son correctos.
 	 */
@@ -237,4 +239,17 @@ public class SearchFiles {
 			System.err.println("Error al crear el fichero: " + argumentos[5]);
 		}
 	}
+    
+    /*
+     * Obtiene los token de una consulta.
+     */
+    private static String[] obtenerTokens(Query query) {
+        String[] tokens = query.toString().split(" ");
+        for(int i = 0; i< tokens.length; i++) {
+            tokens[i] = tokens[i].substring(tokens[i].lastIndexOf(":")+1);
+            System.out.println(tokens[i]);
+        }
+        return tokens;
+    }
+=======
 }
