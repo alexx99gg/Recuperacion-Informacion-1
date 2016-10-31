@@ -116,6 +116,7 @@ public class SearchFiles {
         break;
       }
       Query query = parser.parse(line);
+      obtenerTokens(query);
       System.out.println("Searching for: " + query.toString(field));
             
       if (repeat > 0) {                           // repeat & time as benchmark
@@ -233,5 +234,17 @@ public class SearchFiles {
         end = Math.min(numTotalHits, start + hitsPerPage);
       }
     }
+  }
+  
+  /*
+   * Obtiene los token de una consulta.
+   */
+  private static String[] obtenerTokens(Query query) {
+	  String[] tokens = query.toString().split(" ");
+      for(int i = 0; i< tokens.length; i++) {
+    	  tokens[i] = tokens[i].substring(tokens[i].lastIndexOf(":")+1);
+    	  System.out.println(tokens[i]);
+      }
+      return tokens;
   }
 }
