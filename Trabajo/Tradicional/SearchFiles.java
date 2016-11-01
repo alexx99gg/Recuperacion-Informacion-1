@@ -1,19 +1,15 @@
 package Trabajo;
 
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -46,7 +42,7 @@ public class SearchFiles {
 		args[0] = "-index";
 		args[1] = "indexTrabajo";
 		args[2] = "-infoNeeds";
-		args[3] = "NecesidadesInfo.xml";
+		args[3] = "necesidadesInformacionElegidas.xml";
 		args[4] = "-output";
 		args[5] = "resultados.txt";
 		
@@ -63,36 +59,25 @@ public class SearchFiles {
 		// Creamos lista de consultas.
 		ArrayList<Consulta> consultas = parserXML.parserNeeds();
 		
+		// Creamos el parser para la consulta.
+		QueryParser parser = new QueryParser(Version.LUCENE_44, "description", analyzer);
+		
+		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
+			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
+			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
+			 Query query = parser.parse(texto);	// Creamos la query.
+			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
+			 // Método que realiza la consulta.
+			 realizarConsulta(tokens,consulta.getIdentificador(),searcher);	
+		}
+		
+		ficheroSal.close();	// Cerramos el fichero de salida.
+		reader.close();	// Cerramos el reader.
+
 		/*
-		 * Seguir aquí.
+		 * Seguir aqui.
 		 */
-		/*BufferedReader in = null;
-    if (queries != null) {
-      in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), "UTF-8"));
-    } else {
-      in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-    }
-    QueryParser parser = new QueryParser(Version.LUCENE_44, field, analyzer);
-    while (true) {
-      if (queries == null && queryString == null) {                        // prompt the user
-        System.out.println("Enter query: ");
-      }
-
-      String line = queryString != null ? queryString : in.readLine();
-
-      if (line == null || line.length() == -1) {
-        break;
-      }
-
-      line = line.trim();
-      if (line.length() == 0) {
-        break;
-      }
-      Query query = parser.parse(line);
-      obtenerTokens(query);
-      System.out.println("Searching for: " + query.toString(field));
-            
-      if (repeat > 0) {                           // repeat & time as benchmark
+      /*if (repeat > 0) {                           // repeat & time as benchmark
         Date start = new Date();
         for (int i = 0; i < repeat; i++) {
         	 searcher.search(query, 100);
@@ -209,7 +194,6 @@ public class SearchFiles {
     }
   }
   
-<<<<<<< HEAD
   	/*
 	 * Método que comprueba si los argumentos de la invocación son correctos.
 	 */
@@ -241,7 +225,7 @@ public class SearchFiles {
 	}
     
     /*
-     * Obtiene los token de una consulta.
+     * Obtiene los tokens de una consulta.
      */
     private static String[] obtenerTokens(Query query) {
         String[] tokens = query.toString().split(" ");
@@ -251,5 +235,22 @@ public class SearchFiles {
         }
         return tokens;
     }
-=======
+    
+    /*
+     * Método que realiza la consulta final.
+     */
+    private static void realizarConsulta(String [] tokens, String identificador,
+    		IndexSearcher searcher){
+    	
+    	escribirFichero(identificador);	// Escribe en el fichero el resultado de la consulta.
+    }
+    
+    /*
+     * Método que escribe en el fichero el resultado de la consulta.
+     */
+    private static void escribirFichero(String identificador){
+    	
+    	ficheroSal.printf(identificador + "\t" + "jajaja");
+    	ficheroSal.println();
+    }
 }

@@ -7,6 +7,7 @@ import javax.xml.parsers.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -19,8 +20,6 @@ public class XMLParser {
 	// Lista de las etiquetas a leer para indexar.
 	private static final String[] LISTADOCS = {"creator", "date", "description",
 			"identifier", "language", "publisher", "title"};
-	// Lista de etiquetas a leer de una necesidad de información.
-	private static final String[] LISTANEEDS = {"identifier", "text"};
 	// Fichero de entrada.
     private static FileInputStream fis;
     private static String fichero;
@@ -209,27 +208,32 @@ public class XMLParser {
 
 			// Crea el nuevo documento.
 			InputSource is = new InputSource(fis);
+			// Realizamos el parser.
 			Document doc = builder.parse(is);
+			// Normalizamos.
+			doc.getDocumentElement().normalize();
 
-			// Obtenemos el primer elemento.
-			Element element = doc.getDocumentElement();
-
-			// Obtenemos una lista con las etiquetas y contenidos.
-			NodeList nodes = element.getChildNodes();
+			// Obtenemos una lista con los elementos según la etiqueta.
+			NodeList nodes = doc.getElementsByTagName("informationNeed");
 
 			// Recorremos todos los nodos hijos.
 			int i = 0;		// Indice para el recorrido.
 			boolean finalizado = false;	// Booleano para terminar.
 			while(!finalizado) {	// Recorremos los nodos.
-				// Obtenemos el contenido.
-				String contenido = nodes.item(i).getTextContent();
-				String [] coord = contenido.split(" ||\n");
-				for(int j=0; j<coord.length; j++){
-					System.out.println(coord[j]);
+				// Obtenemos el nodo.
+				Node nNode = nodes.item(i);
+				Element elemento = (Element) nNode;
+				// Sacamos identificador y necesidad de información.
+				String identificador = elemento.getElementsByTagName("identifier").
+						item(0).getTextContent();
+				String contenido = elemento.getElementsByTagName("text").
+						item(0).getTextContent();
+				// Creamos la consulta y la añadimos.
+				consultas.add(new Consulta (identificador,contenido));
+				i = i + 1;		// Actualizamos el índice.
+				if(i == nodes.getLength()){	// Miramos si se ha terminado.
+					finalizado = true;
 				}
-				i = i + 1;
-				System.out.println(contenido);
-				
 			}
 			return consultas;	// Se devuelve las consultas.
 		} catch (Exception e) {	// Se captura la posible excepción.

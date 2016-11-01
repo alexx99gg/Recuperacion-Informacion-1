@@ -108,7 +108,7 @@ public class IndexFiles {
 		
 	}
 
-	/**
+	/*
 	* Método que indexa todos los documentos a partir de un cierto
 	* índice pasado como parámetro.
 	*/

@@ -6,14 +6,14 @@ package Trabajo;
  */
 public class Consulta {
 
-	private int identificador;	// Identificador de la consulta.
+	private String identificador;	// Identificador de la consulta.
 	private String necesidad; // Lista de etiquetas.
 	
 	/*
 	 * Método constructor de un objeto consulta a partir de un
 	 * identificador y una lista de etiquetas.
 	 */
-	public Consulta(int identificador, String necesidad) {
+	public Consulta(String identificador, String necesidad) {
 		this.identificador = identificador;
 		this.necesidad = necesidad;
 	}
@@ -21,14 +21,14 @@ public class Consulta {
 	/*
 	 * Método que devuelve el identificador de la consulta.
 	 */
-	public int getIdentificador() {
+	public String getIdentificador() {
 		return identificador;
 	}
 
 	/*
 	 * Método que fija el identificador de la consulta.
 	 */
-	public void setIdentificador(int identificador) {
+	public void setIdentificador(String identificador) {
 		this.identificador = identificador;
 	}
 
@@ -39,6 +39,9 @@ public class Consulta {
 		return necesidad;
 	}
 
+	/*
+	 * Método que fija la necesidad de información.
+	 */
 	public void setNecesidad(String necesidad) {
 		this.necesidad = necesidad;
 	}
