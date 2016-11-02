@@ -70,6 +70,8 @@ public class SearchFiles {
 			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
 			 // Creamos la lista de etiquetas a buscar.
 			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
+			 campos.add(new Etiqueta(("description"),texto));
+			 campos.add(new Etiqueta(("title"),texto));
 			 hacerConsulta(tokens,campos);	// Crea la consulta.
 			 // Método que realiza la consulta.
 			 realizarConsulta(consulta.getIdentificador(),searcher,campos,analyzer);	
@@ -131,19 +133,19 @@ public class SearchFiles {
     	String [] campos = new String[etiquetas.size()];
     	String [] contenidos = new String[etiquetas.size()];
     	for(int i=0; i<campos.length; i++){
-    		campos [i] = etiquetas.get(i).getContenido();
-    		contenidos [i] = etiquetas.get(i).getTitulo();
+    		contenidos [i] = etiquetas.get(i).getContenido();
+    		campos [i] = etiquetas.get(i).getTitulo();
     	}
     	try{
     		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
     		System.out.println(query.toString());
     		searcher.search(query, 100);
-    		TopDocs results = searcher.search(query, 10);
+    		TopDocs results = searcher.search(query, 1000);
     	    ScoreDoc[] hits = results.scoreDocs;
     	    
     	    for(int i=0; i<results.totalHits; i++){
         		Document doc = searcher.doc(hits[i].doc);
-        		System.out.println(i + ". " + doc.get("path"));
+        		System.out.println((i+1) + ". " + doc.get("path"));
         		ficheroSal.printf(identificador + "\t" + doc.get("path"));
         		if(hits.length != i-1){
         			ficheroSal.println();
@@ -158,20 +160,20 @@ public class SearchFiles {
      * Método que añade a la consulta final algunos campos extra.
      */
     private static void hacerConsulta(String [] tokens, ArrayList<Etiqueta> campos){
-    	String consulta = "";
+
     	for(int i=0; i<tokens.length; i++){
     		if(idioma(tokens[i])){
     			campos.add(new Etiqueta("language",tokens[i]));
     		} if(publisher(tokens[i])){
     			campos.add(new Etiqueta("publisher",tokens[i]));
-    		}
-    		consulta = consulta + tokens[i];
-    		if(i != tokens.length-1){
-    			consulta = consulta + " ";
+    		} if(i != tokens.length-1){
+    			if(identificador(tokens[i],tokens[i+1])){
+    				campos.add(new Etiqueta("identifier", tokens[i+1]));
+    			}	
+    		} if(fecha(tokens[i])){
+    			campos.add(new Etiqueta("date", tokens[i]));
     		}
     	}
-    	campos.add(new Etiqueta(("description"),consulta));
-    	campos.add(new Etiqueta(("title"),consulta));
     }
     
     /*
@@ -194,8 +196,41 @@ public class SearchFiles {
      * Método que comprueba si es la entidad que publica documentos.
      */
     private static boolean publisher(String token){
+    	
     	return (token.equals("zaragoz") || token.equals("universidad")
     			|| token.equals("prens"));
     }
     
+    /*
+     * Método que comprueba si se trata de un identificador de un documento.
+     */
+    private static boolean identificador(String tokenIden, String tokenNum){
+    	
+    	if (tokenIden.equals("identificador")){
+    		try{
+    			Integer.parseInt(tokenNum);
+    			return true;
+    		} catch(Exception e){
+    			return false;
+    		}
+    	}
+    	return false;
+    }
+    
+    /*
+     * Método que comprueba si es una fecha el token.
+     */
+    private static boolean fecha(String token){
+    	
+    	try{
+			int ano = Integer.parseInt(token);
+			String fecha = Integer.toString(ano);
+			if(fecha.length()==4){
+				return true;
+			}
+			return false;
+		} catch(Exception e){
+			return false;
+		}
+    }
 }
