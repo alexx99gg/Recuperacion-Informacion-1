@@ -10,6 +10,7 @@ import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -48,6 +49,7 @@ public class SearchFiles {
 		// Creamos el índice para lectura.
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(args[1])));
 		IndexSearcher searcher = new IndexSearcher(reader);
+		// Usamos el modelo probabilístico.
 		BM25Similarity simil = new BM25Similarity();
 		searcher.setSimilarity(simil);
 		// Creamos el analizador.
@@ -66,10 +68,13 @@ public class SearchFiles {
 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
 			 Query query = parser.parse(texto);	// Creamos la query.
 			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
-			 String consultaFinal = hacerConsulta(tokens);	// Crea la consulta.
-			 query = parser.parse(consultaFinal);	// Se crea la consulta con campos.
+			 // Creamos la lista de etiquetas a buscar.
+			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
+			 campos.add(new Etiqueta("description",texto));
+			 campos.add(new Etiqueta("title",texto));
+			 hacerConsulta(tokens,campos);	// Crea la consulta.
 			 // Método que realiza la consulta.
-			 realizarConsulta(consulta.getIdentificador(),searcher,query);	
+			 realizarConsulta(consulta.getIdentificador(),searcher,campos,analyzer);	
 		}
 		
 		ficheroSal.close();	// Cerramos el fichero de salida.
@@ -123,9 +128,16 @@ public class SearchFiles {
      * Método que realiza la consulta final y escribe los resultados en un fichero.
      */
     private static void realizarConsulta(String identificador, IndexSearcher searcher, 
-    				Query query){
+    				ArrayList<Etiqueta> etiquetas, Analyzer analyzer){
     	
+    	String [] campos = new String[etiquetas.size()];
+    	String [] contenidos = new String[etiquetas.size()];
+    	for(int i=0; i<campos.length; i++){
+    		campos [i] = etiquetas.get(i).getContenido();
+    		contenidos [i] = etiquetas.get(i).getTitulo();
+    	}
     	try{
+    		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
     		searcher.search(query, 100);
     		TopDocs results = searcher.search(query, 10);
     	    ScoreDoc[] hits = results.scoreDocs;
@@ -144,25 +156,16 @@ public class SearchFiles {
     }
   
     /*
-     * Método que hace la consulta final con los campos divididos.
+     * Método que añade a la consulta final algunos campos extra.
      */
-    private static String hacerConsulta(String [] tokens){
-    	String consulta = "";
+    private static void hacerConsulta(String [] tokens, ArrayList<Etiqueta> campos){
     	for(int i=0; i<tokens.length; i++){
     		if(idioma(tokens[i])){
-    			consulta = consulta + "language:" + tokens[i];
-    		} else if(publisher(tokens[i])){
-    			consulta = consulta + "publisher:" + tokens[i];
-    		} else{
-    			consulta = consulta + "description:" + tokens[i];
-    		}
-    		System.out.println(i+"-"+consulta);
-    		if(tokens.length-1 != i){
-    			consulta = consulta + " OR ";
+    			campos.add(new Etiqueta("language",tokens[i]));
+    		} if(publisher(tokens[i])){
+    			campos.add(new Etiqueta("publisher",tokens[i]));
     		}
     	}
-    	System.out.println(consulta);
-    	return consulta;
     }
     
     /*
@@ -188,4 +191,5 @@ public class SearchFiles {
     	return (token.equals("zaragoz") || token.equals("universidad")
     			|| token.equals("prens"));
     }
+    
 }
