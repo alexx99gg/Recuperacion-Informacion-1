@@ -1,4 +1,4 @@
-package Trabajo;
+package trabajo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -223,9 +223,7 @@ public class SearchFiles {
     private static boolean fecha(String token){
     	
     	try{
-			int ano = Integer.parseInt(token);
-			String fecha = Integer.toString(ano);
-			if(fecha.length()==4){
+			if(token.length()==4){
 				return true;
 			}
 			return false;
