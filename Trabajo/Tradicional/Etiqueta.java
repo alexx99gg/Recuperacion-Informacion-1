@@ -1,4 +1,4 @@
-package practica2;
+package Trabajo;
 
 /**
  * Clase que representa una abstracción de una etiqueta de 
@@ -8,7 +8,6 @@ public class Etiqueta {
 
 	private String titulo;	// Título del documento.
 	private String contenido;	// Contenido del documento.
-	private Coordenadas coordenadas; // Coordenadas si es bounding box.
 	private int fecha;	// Fecha temporal.
 
 	/*
@@ -17,14 +16,6 @@ public class Etiqueta {
 	public Etiqueta (String titulo, String contenido){
 		this.titulo = titulo;
 		this.contenido = contenido;
-	}
-	
-	/*
-	 * Constructor de un objeto Etiqueta.
-	 */
-	public Etiqueta (String titulo, Coordenadas coordenadas){
-		this.titulo = titulo;
-		this.coordenadas = coordenadas;
 	}
 	
 	/*
@@ -61,20 +52,6 @@ public class Etiqueta {
 	 */
 	public void setContenido(String contenido) {
 		this.contenido = contenido;
-	}
-
-	/*
-	 * Método que devuelve el array de coordenadas de la etiqueta.
-	 */
-	public Coordenadas getCoordenadas() {
-		return coordenadas;
-	}
-
-	/*
-	 * Método que fija las coordenadas de la etiqueta.
-	 */
-	public void setCoordenadas(Coordenadas coordenadas) {
-		this.coordenadas = coordenadas;
 	}
 	
 	/*
