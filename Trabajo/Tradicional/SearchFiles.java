@@ -70,8 +70,6 @@ public class SearchFiles {
 			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
 			 // Creamos la lista de etiquetas a buscar.
 			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
-			 campos.add(new Etiqueta("description",texto));
-			 campos.add(new Etiqueta("title",texto));
 			 hacerConsulta(tokens,campos);	// Crea la consulta.
 			 // Método que realiza la consulta.
 			 realizarConsulta(consulta.getIdentificador(),searcher,campos,analyzer);	
@@ -138,6 +136,7 @@ public class SearchFiles {
     	}
     	try{
     		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
+    		System.out.println(query.toString());
     		searcher.search(query, 100);
     		TopDocs results = searcher.search(query, 10);
     	    ScoreDoc[] hits = results.scoreDocs;
@@ -159,13 +158,20 @@ public class SearchFiles {
      * Método que añade a la consulta final algunos campos extra.
      */
     private static void hacerConsulta(String [] tokens, ArrayList<Etiqueta> campos){
+    	String consulta = "";
     	for(int i=0; i<tokens.length; i++){
     		if(idioma(tokens[i])){
     			campos.add(new Etiqueta("language",tokens[i]));
     		} if(publisher(tokens[i])){
     			campos.add(new Etiqueta("publisher",tokens[i]));
     		}
+    		consulta = consulta + tokens[i];
+    		if(i != tokens.length-1){
+    			consulta = consulta + " ";
+    		}
     	}
+    	campos.add(new Etiqueta(("description"),consulta));
+    	campos.add(new Etiqueta(("title"),consulta));
     }
     
     /*
