@@ -1,4 +1,4 @@
-package Trabajo;
+package trabajo;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -66,6 +66,7 @@ public class XMLParser {
 	    	// Recorremos todos los nodos hijos.
 	    	int i = 0;		// Indice para el recorrido.
 	    	boolean finalizado = false;	// Booleano para terminar.
+	    	boolean descripcionAdd = false;		//Booleano para indicar si se ha añadido una descripcion.
 	        while(!finalizado) {	// Recorremos los nodos.
 	        	// Obtenemos el nombre y el contenido.
 	        	String nombre = nodes.item(i).getNodeName()
@@ -81,8 +82,13 @@ public class XMLParser {
 	        				if(nombre.equals("identifier")){
 	        					int indice = titulos.indexOf(nombre);
 	        					comprobarIdentifier(etiq,contenido,indice);
-	        				} else if(!nombre.equals("description")){	
-	        					// En otro caso, (salvo que sea descripcion), se concatena al final.
+	        				} else if(nombre.equals("description") && !descripcionAdd){	
+	        					descripcionAdd = true;
+		        				int indice = titulos.indexOf(nombre);
+			        			etiq.get(indice).setContenido(etiq.get(indice).
+			        					getContenido()+"\n"+contenido);
+	        				} else if((!nombre.equals("description")))  {
+	        					// En otro caso se concatena al final.
 		        				int indice = titulos.indexOf(nombre);
 			        			etiq.get(indice).setContenido(etiq.get(indice).
 			        					getContenido()+"\n"+contenido);
@@ -91,13 +97,24 @@ public class XMLParser {
 	        		} else {	// Si no está en la lista, se añade.
 	        			if(nombre.equals("date")){
 	        				//System.out.println(contenido);
-	        				etiq.add(new Etiqueta(nombre,Integer.parseInt(contenido)));
+	        				etiq.add(new Etiqueta(nombre,Integer.parseInt(contenido)));	
+		        			titulos.add(nombre);
 	        			} else if(nombre.equals("language")) {
-		        			etiq.add(new Etiqueta (nombre,obtenerIdioma(contenido)));
-	        			} else{
-		        			etiq.add(new Etiqueta (nombre,contenido));
-	        			}	        				
-	        			titulos.add(nombre);
+		        			etiq.add(new Etiqueta (nombre,obtenerIdioma(contenido)));	
+		        			titulos.add(nombre);
+	        			} else if(nombre.equals("creator")) {
+	        				if(!titulos.contains("description")) {
+	        					etiq.add(new Etiqueta ("description",contenido));	
+	    	        			titulos.add("description");
+	        				} else {
+		        				int indice = titulos.indexOf("description");
+			        			etiq.get(indice).setContenido(etiq.get(indice).
+			        					getContenido()+"\n"+contenido);
+	        				}
+	        			}else {
+		        			etiq.add(new Etiqueta (nombre,contenido));	
+		        			titulos.add(nombre);
+	        			}	        			
 	        		}
 	        		if ( i == nodes.getLength()) {
 	        			finalizado = true;	// Se comprueba el límite.
@@ -110,6 +127,7 @@ public class XMLParser {
 	        if(!titulos.contains("language")){	// Miramos si no tenía idioma.
 	        	etiq.add(new Etiqueta("language","español"));
 	        }
+	        System.out.println(etiq.get(titulos.indexOf("description")).getContenido());
 	        return etiq;	// Se devuelve la etiqueta.
 	    } catch (Exception e) {	// Se captura la posible excepción.
 	    	System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());
