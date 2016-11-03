@@ -4,7 +4,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -157,14 +156,8 @@ public class IndexFiles {
 						System.out.println("Indexando etiqueta" + file.getPath()+" : "
 										+etiq.get(i).getTitulo());
 						// Indexa la etiqueta.
-						if(etiq.get(i).getTitulo().equals("date")){
-							// Comprueba si es fecha.
-							doc.add(new IntField(etiq.get(i).getTitulo(), 
-									etiq.get(i).getFecha(),Field.Store.YES));
-						} else{	// Si es otro caso...
-							doc.add(new TextField(etiq.get(i).getTitulo(), 
-									new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
-						}
+						doc.add(new TextField(etiq.get(i).getTitulo(), 
+								new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
 					}
 					// Indica por pantalla el documento indexado.
 					System.out.println("Indexando documento: " +  file);

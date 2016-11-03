@@ -1,4 +1,4 @@
-package trabajo;
+package Trabajo;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -95,11 +95,7 @@ public class XMLParser {
 	        				}
 	        			}
 	        		} else {	// Si no está en la lista, se añade.
-	        			if(nombre.equals("date")){
-	        				//System.out.println(contenido);
-	        				etiq.add(new Etiqueta(nombre,Integer.parseInt(contenido)));	
-		        			titulos.add(nombre);
-	        			} else if(nombre.equals("language")) {
+	        			if(nombre.equals("language")) {
 		        			etiq.add(new Etiqueta (nombre,obtenerIdioma(contenido)));	
 		        			titulos.add(nombre);
 	        			} else if(nombre.equals("creator")) {
@@ -127,7 +123,6 @@ public class XMLParser {
 	        if(!titulos.contains("language")){	// Miramos si no tenía idioma.
 	        	etiq.add(new Etiqueta("language","español"));
 	        }
-	        System.out.println(etiq.get(titulos.indexOf("description")).getContenido());
 	        return etiq;	// Se devuelve la etiqueta.
 	    } catch (Exception e) {	// Se captura la posible excepción.
 	    	System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());

@@ -1,4 +1,4 @@
-package trabajo;
+package Trabajo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -137,7 +137,7 @@ public class SearchFiles {
     	}
     	try{
     		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
-    		searcher.search(query, 100);
+    		searcher.search(query, 30);
     		TopDocs results = searcher.search(query, 30);
     	    ScoreDoc[] hits = results.scoreDocs;
     	    
@@ -220,6 +220,7 @@ public class SearchFiles {
     private static boolean fecha(String token){
     	
     	try{
+    		Integer.parseInt(token);
 			if(token.length()==4){
 				return true;
 			}

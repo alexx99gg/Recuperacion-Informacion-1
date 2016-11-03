@@ -8,7 +8,6 @@ public class Etiqueta {
 
 	private String titulo;	// Título del documento.
 	private String contenido;	// Contenido del documento.
-	private int fecha;	// Fecha temporal.
 
 	/*
 	 * Constructor de un objeto Etiqueta.
@@ -16,14 +15,6 @@ public class Etiqueta {
 	public Etiqueta (String titulo, String contenido){
 		this.titulo = titulo;
 		this.contenido = contenido;
-	}
-	
-	/*
-	 * Constructor de un objeto Etiqueta.
-	 */
-	public Etiqueta (String titulo, int fecha){
-		this.titulo = titulo;
-		this.fecha = fecha;
 	}
 
 	/*
@@ -52,19 +43,5 @@ public class Etiqueta {
 	 */
 	public void setContenido(String contenido) {
 		this.contenido = contenido;
-	}
-	
-	/*
-	 * Método que devuelve la fecha temporal de la etiqueta.
-	 */
-	public int getFecha() {
-		return fecha;
-	}
-
-	/*
-	 * Método que fija la fecha temporal de la etiqueta.
-	 */
-	public void setFecha(int fecha) {
-		this.fecha = fecha;
 	}
 }
