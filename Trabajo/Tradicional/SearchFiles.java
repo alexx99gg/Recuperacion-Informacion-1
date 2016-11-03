@@ -63,7 +63,7 @@ public class SearchFiles {
 		// Creamos el parser para la consulta.
 		QueryParser parser = new QueryParser(Version.LUCENE_44, "description", analyzer);
 		
-		for(int i=0; i<1/*consultas.size()*/; i++){	// Recorremos las consultas.
+		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
 			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
 			 Query query = parser.parse(texto);	// Creamos la query.
@@ -119,7 +119,6 @@ public class SearchFiles {
         String[] tokens = query.toString().split(" ");
         for(int i = 0; i< tokens.length; i++) {
             tokens[i] = tokens[i].substring(tokens[i].lastIndexOf(":")+1);
-            System.out.println(tokens[i]);
         }
         return tokens;
     }
@@ -138,14 +137,12 @@ public class SearchFiles {
     	}
     	try{
     		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
-    		System.out.println(query.toString());
     		searcher.search(query, 100);
-    		TopDocs results = searcher.search(query, 1000);
+    		TopDocs results = searcher.search(query, 30);
     	    ScoreDoc[] hits = results.scoreDocs;
     	    
     	    for(int i=0; i<results.totalHits; i++){
         		Document doc = searcher.doc(hits[i].doc);
-        		System.out.println((i+1) + ". " + doc.get("path"));
         		ficheroSal.printf(identificador + "\t" + doc.get("path"));
         		if(hits.length != i-1){
         			ficheroSal.println();
