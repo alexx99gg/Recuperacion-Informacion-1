@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -29,6 +30,10 @@ import org.apache.lucene.util.Version;
 public class SearchFiles {
 
 	private static PrintWriter ficheroSal;	// Fichero de resultados.
+	private static String[] stopWords = {"encontrar", "interesa","información","informacion",
+			"textos","texto","trabajos","trabajo","afectado","preferentemente","población","poblacion",
+			"interesado","preferiria","modelos","basados","gustaría","gustaria","conocer","académicos",
+			"relacionados"};
 	
 	/*
 	 * Método principal que parsea la consulta y la realiza sobre
@@ -53,8 +58,9 @@ public class SearchFiles {
 		BM25Similarity simil = new BM25Similarity();
 		searcher.setSimilarity(simil);
 		// Creamos el analizador.
-		Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
-
+		CharArraySet stopSet = obtenerStopWords();
+		Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44,stopSet);
+		
 		// Creamos el parser para las consultas.
 		XMLParser parserXML = new XMLParser(args[3]);
 		// Creamos lista de consultas.
@@ -62,11 +68,11 @@ public class SearchFiles {
 		
 		// Creamos el parser para la consulta.
 		QueryParser parser = new QueryParser(Version.LUCENE_44, "description", analyzer);
-		
 		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
 			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
 			 Query query = parser.parse(texto);	// Creamos la query.
+			 
 			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
 			 // Creamos la lista de etiquetas a buscar.
 			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
@@ -137,6 +143,7 @@ public class SearchFiles {
     	}
     	try{
     		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
+    		System.out.println(query.toString());
     		searcher.search(query, 30);
     		TopDocs results = searcher.search(query, 30);
     	    ScoreDoc[] hits = results.scoreDocs;
@@ -228,5 +235,15 @@ public class SearchFiles {
 		} catch(Exception e){
 			return false;
 		}
+    }
+    
+    public static CharArraySet obtenerStopWords() {
+    	CharArraySet stopSet = new CharArraySet(Version.LUCENE_44,SpanishAnalyzer.getDefaultStopSet(),
+    			false);
+    	for(int i = 0;i<stopWords.length;i++) {
+    		stopSet.add(stopWords[i]);
+    	}
+    	return stopSet;
+    	
     }
 }
