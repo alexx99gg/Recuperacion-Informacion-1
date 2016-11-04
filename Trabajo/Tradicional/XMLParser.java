@@ -2,6 +2,7 @@ package Trabajo;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.xml.parsers.*;
 
@@ -66,8 +67,9 @@ public class XMLParser {
 	    	// Recorremos todos los nodos hijos.
 	    	int i = 0;		// Indice para el recorrido.
 	    	boolean finalizado = false;	// Booleano para terminar.
-	    	boolean descripcionAdd = false;		//Booleano para indicar si se ha añadido una descripcion.
-	        while(!finalizado) {	// Recorremos los nodos.
+	    	//Booleano para indicar si se ha añadido una descripción.
+	    	boolean descripcionAdd = false;		
+	    	while(!finalizado) {	// Recorremos los nodos.
 	        	// Obtenemos el nombre y el contenido.
 	        	String nombre = nodes.item(i).getNodeName()
 	        			.substring(nodes.item(i).getNodeName().lastIndexOf(":")+1);
@@ -82,13 +84,8 @@ public class XMLParser {
 	        				if(nombre.equals("identifier")){
 	        					int indice = titulos.indexOf(nombre);
 	        					comprobarIdentifier(etiq,contenido,indice);
-	        				} else if(nombre.equals("description") && !descripcionAdd){	
+	        				} if(nombre.equals("description") && !descripcionAdd){	
 	        					descripcionAdd = true;
-		        				int indice = titulos.indexOf(nombre);
-			        			etiq.get(indice).setContenido(etiq.get(indice).
-			        					getContenido()+"\n"+contenido);
-	        				} else if((!nombre.equals("description")))  {
-	        					// En otro caso se concatena al final.
 		        				int indice = titulos.indexOf(nombre);
 			        			etiq.get(indice).setContenido(etiq.get(indice).
 			        					getContenido()+"\n"+contenido);
@@ -107,7 +104,18 @@ public class XMLParser {
 			        			etiq.get(indice).setContenido(etiq.get(indice).
 			        					getContenido()+"\n"+contenido);
 	        				}
-	        			}else {
+	        			} else if (nombre.equals("title")){
+	        				if(!titulos.contains("description")) {
+	        					etiq.add(new Etiqueta ("description",contenido));	
+	    	        			titulos.add("description");
+	    	        			titulos.add("title");
+	        				} else {
+		        				int indice = titulos.indexOf("description");
+			        			etiq.get(indice).setContenido(etiq.get(indice).
+			        					getContenido()+"\n"+contenido);
+			        			titulos.add("title");
+	        				}
+	        			} else {
 		        			etiq.add(new Etiqueta (nombre,contenido));	
 		        			titulos.add(nombre);
 	        			}	        			
@@ -123,6 +131,9 @@ public class XMLParser {
 	        if(!titulos.contains("language")){	// Miramos si no tenía idioma.
 	        	etiq.add(new Etiqueta("language","español"));
 	        }
+	        // Obtenemos el índice del campo description.
+	        int indice = titulos.indexOf("description");
+	        anadirFecha(etiq.get(indice).getContenido(),etiq);	// Indexamos fechas de title y description.
 	        return etiq;	// Se devuelve la etiqueta.
 	    } catch (Exception e) {	// Se captura la posible excepción.
 	    	System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());
@@ -175,6 +186,7 @@ public class XMLParser {
 	 * Obtiene el nombre del idioma a partir de una abreviatura del mismo.
 	 */
 	private String obtenerIdioma(String abreviatura) {
+		
 		String idioma = "";
 		switch(abreviatura) {
 			case "spa":
@@ -202,6 +214,27 @@ public class XMLParser {
 				idioma = "";
 		}
 		return idioma;
+	}
+	
+	/*
+	 * Método que indexa las fechas contenidas en el campo title o
+	 * description para poder realizar consultas de rangos.
+	 */
+	private static void anadirFecha(String texto, ArrayList<Etiqueta> etiq){
+		
+		texto = texto.trim();
+		Scanner palabras = new Scanner(texto);
+		palabras.useDelimiter(" |\\n|-|\\,|\\(|\\)");
+		while(palabras.hasNext()){
+			String palabra = palabras.next();
+			try{
+				Integer.parseInt(palabra);
+				if(palabra.length()==4){
+					etiq.add(new Etiqueta ("fechaTexto",palabra));
+				}
+			} catch(NumberFormatException e){}
+		}
+		palabras.close();
 	}
 	
 	/*

@@ -4,6 +4,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -153,14 +154,22 @@ public class IndexFiles {
 					// Recorre las etiquetas indexando el contenido.
 					for(int i = 0; i<etiq.size(); i++) {
 						// Indica por pantalla que se está indexando.
-						System.out.println("Indexando etiqueta" + file.getPath()+" : "
-										+etiq.get(i).getTitulo());
-						// Indexa la etiqueta.
-						doc.add(new TextField(etiq.get(i).getTitulo(), 
-								new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
+						//System.out.println("Indexando etiqueta" + file.getPath()+" : "
+										//+etiq.get(i).getTitulo());
+						if(etiq.get(i).getTitulo().equals("date") ||
+							etiq.get(i).getTitulo().equals("fechaTexto")){
+							// Indexa la etiqueta.
+							doc.add(new IntField(etiq.get(i).getTitulo(), 
+			            			  Integer.parseInt(etiq.get(i).getContenido()),
+			            					  Field.Store.YES));	
+						} else{
+							// Indexa la etiqueta.
+							doc.add(new TextField(etiq.get(i).getTitulo(), 
+									new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
+						}
 					}
 					// Indica por pantalla el documento indexado.
-					System.out.println("Indexando documento: " +  file);
+					//System.out.println("Indexando documento: " +  file);
 					writer.addDocument(doc);    	// Indexa el documento.  
 				} finally {
 					fis.close();		// Se cierra el canal.
