@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
@@ -54,9 +55,11 @@ public class SearchFiles {
 		// Creamos el índice para lectura.
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(args[1])));
 		IndexSearcher searcher = new IndexSearcher(reader);
+		
 		// Usamos el modelo probabilístico.
 		BM25Similarity simil = new BM25Similarity();
 		searcher.setSimilarity(simil);
+		
 		// Creamos el analizador.
 		CharArraySet stopSet = obtenerStopWords();
 		Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44,stopSet);
@@ -68,16 +71,15 @@ public class SearchFiles {
 		
 		// Creamos el parser para la consulta.
 		QueryParser parser = new QueryParser(Version.LUCENE_44, "description", analyzer);
-		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
+		for(int i=4; i<5/*consultas.size()*/; i++){	// Recorremos las consultas.
 			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
 			 Query query = parser.parse(texto);	// Creamos la query.
-			 
+			 analizarFechas(texto);	// Se obtienen consultas de fechas según patrones.
 			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
 			 // Creamos la lista de etiquetas a buscar.
 			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
 			 campos.add(new Etiqueta(("description"),texto));
-			 campos.add(new Etiqueta(("title"),texto));
 			 hacerConsulta(tokens,campos);	// Crea la consulta.
 			 // Método que realiza la consulta.
 			 realizarConsulta(consulta.getIdentificador(),searcher,campos,analyzer);	
@@ -143,7 +145,7 @@ public class SearchFiles {
     	}
     	try{
     		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
-    		System.out.println(query.toString());
+    		//System.out.println(query.toString());
     		searcher.search(query, 30);
     		TopDocs results = searcher.search(query, 30);
     	    ScoreDoc[] hits = results.scoreDocs;
@@ -249,4 +251,31 @@ public class SearchFiles {
     	return stopSet;
     	
     }
+    
+    /*
+     * Método que comprueba patrones en el texto en busca de fechas.
+     */
+    private static void analizarFechas(String texto){
+    	Scanner analizar = new Scanner(texto);
+    	int contador = 0;
+    	while(analizar.hasNext()){
+    		String palabra = analizar.next();
+    		contador = contador + palabra.length() + 1;
+    		if(palabra.equals("entre") || palabra.equals("desde")
+    				|| palabra.equals("de")){
+    			Fechas.intervalo(texto.substring(contador,
+    					texto.length()));
+    		} else if(palabra.equals("a") || palabra.equals("posterior")
+    				|| palabra.equals("posteriores")){
+    			Fechas.posteriores(texto.substring(contador,
+    					texto.length()));
+    		} else if(palabra.equals("anteriores") || palabra.equals("anterior")
+    				|| palabra.equals("ultimos") || palabra.equals("últimos")){
+    			Fechas.anteriores(texto.substring(contador,
+    					texto.length()));
+    		}
+       	}
+    	analizar.close();
+    }
+    
 }
