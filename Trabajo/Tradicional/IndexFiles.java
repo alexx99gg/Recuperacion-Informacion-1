@@ -153,23 +153,21 @@ public class IndexFiles {
 					ArrayList<Etiqueta> etiq = p.parserDocs();
 					// Recorre las etiquetas indexando el contenido.
 					for(int i = 0; i<etiq.size(); i++) {
-						// Indica por pantalla que se está indexando.
-						//System.out.println("Indexando etiqueta" + file.getPath()+" : "
-										//+etiq.get(i).getTitulo());
+						// Comprueba si es campo fecha o fecha en el texto
 						if(etiq.get(i).getTitulo().equals("date") ||
 							etiq.get(i).getTitulo().equals("fechaTexto")){
 							// Indexa la etiqueta.
 							doc.add(new IntField(etiq.get(i).getTitulo(), 
 			            			  Integer.parseInt(etiq.get(i).getContenido()),
-			            					  Field.Store.YES));	
-						} else{
+			            					  Field.Store.YES));
+						} else{		// Si es de otro tipo...
 							// Indexa la etiqueta.
 							doc.add(new TextField(etiq.get(i).getTitulo(), 
 									new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
 						}
 					}
 					// Indica por pantalla el documento indexado.
-					//System.out.println("Indexando documento: " +  file);
+					System.out.println("Indexando documento: " +  file);
 					writer.addDocument(doc);    	// Indexa el documento.  
 				} finally {
 					fis.close();		// Se cierra el canal.

@@ -237,6 +237,9 @@ public class SearchFiles {
 		}
     }
     
+    /*
+     * Método que introduce las palabras irrelevantes en el analizador.
+     */
     public static CharArraySet obtenerStopWords() {
     	CharArraySet stopSet = new CharArraySet(Version.LUCENE_44,SpanishAnalyzer.getDefaultStopSet(),
     			false);

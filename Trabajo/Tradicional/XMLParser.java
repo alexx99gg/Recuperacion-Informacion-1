@@ -224,15 +224,24 @@ public class XMLParser {
 		
 		texto = texto.trim();
 		Scanner palabras = new Scanner(texto);
-		palabras.useDelimiter(" |\\n|-|\\,|\\(|\\)");
+		palabras.useDelimiter(" |,|\\(|-|\\)|\\n|–");
+		boolean primero = true;
 		while(palabras.hasNext()){
 			String palabra = palabras.next();
-			try{
-				Integer.parseInt(palabra);
-				if(palabra.length()==4){
-					etiq.add(new Etiqueta ("fechaTexto",palabra));
-				}
-			} catch(NumberFormatException e){}
+			if(palabra.length()>0){
+				try{
+					Integer.parseInt(palabra);
+					if(palabra.length()==4){
+						if(primero){
+							etiq.add(new Etiqueta ("fechaTexto",palabra));
+						} else{
+		        			etiq.get(etiq.size()-1).setContenido(
+		        					etiq.get(etiq.size()-1).
+		        					getContenido()+"\n"+palabra);
+						}
+					}
+				} catch(NumberFormatException e){}
+			}
 		}
 		palabras.close();
 	}
