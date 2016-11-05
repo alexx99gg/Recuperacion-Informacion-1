@@ -15,6 +15,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -75,14 +76,15 @@ public class SearchFiles {
 			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
 			 Query query = parser.parse(texto);	// Creamos la query.
-			 analizarFechas(texto);	// Se obtienen consultas de fechas según patrones.
+			 ArrayList<Integer> intervalos = 
+					 analizarFechas(texto);	// Se obtienen consultas de fechas según patrones.
 			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
 			 // Creamos la lista de etiquetas a buscar.
 			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
 			 campos.add(new Etiqueta(("description"),texto));
 			 hacerConsulta(tokens,campos);	// Crea la consulta.
 			 // Método que realiza la consulta.
-			 realizarConsulta(consulta.getIdentificador(),searcher,campos,analyzer);	
+			 realizarConsulta(consulta.getIdentificador(),searcher,campos,intervalos,analyzer);	
 		}
 		
 		ficheroSal.close();	// Cerramos el fichero de salida.
@@ -135,7 +137,7 @@ public class SearchFiles {
      * Método que realiza la consulta final y escribe los resultados en un fichero.
      */
     private static void realizarConsulta(String identificador, IndexSearcher searcher, 
-    				ArrayList<Etiqueta> etiquetas, Analyzer analyzer){
+    				ArrayList<Etiqueta> etiquetas, ArrayList<Integer> intervalos, Analyzer analyzer){
     	
     	String [] campos = new String[etiquetas.size()];
     	String [] contenidos = new String[etiquetas.size()];
@@ -144,6 +146,12 @@ public class SearchFiles {
     		campos [i] = etiquetas.get(i).getTitulo();
     	}
     	try{
+    		//Se crea query con los rangos de fechas.
+    		Query[] queryFechas = new Query[intervalos.size()/2];
+    		for(int i = 0; i< intervalos.size();i=i+2) {
+    			queryFechas[i/2] = NumericRangeQuery.newIntRange("fecha"+i/2,intervalos.get(i),
+    					intervalos.get(i+1),true,true);
+    		}
     		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
     		//System.out.println(query.toString());
     		searcher.search(query, 30);
@@ -176,8 +184,6 @@ public class SearchFiles {
     			if(identificador(tokens[i],tokens[i+1])){
     				campos.add(new Etiqueta("identifier", tokens[i+1]));
     			}	
-    		} if(fecha(tokens[i])){
-    			campos.add(new Etiqueta("date", tokens[i]));
     		}
     	}
     }
@@ -224,22 +230,6 @@ public class SearchFiles {
     }
     
     /*
-     * Método que comprueba si es una fecha el token.
-     */
-    private static boolean fecha(String token){
-    	
-    	try{
-    		Integer.parseInt(token);
-			if(token.length()==4){
-				return true;
-			}
-			return false;
-		} catch(Exception e){
-			return false;
-		}
-    }
-    
-    /*
      * Método que introduce las palabras irrelevantes en el analizador.
      */
     public static CharArraySet obtenerStopWords() {
@@ -255,27 +245,33 @@ public class SearchFiles {
     /*
      * Método que comprueba patrones en el texto en busca de fechas.
      */
-    private static void analizarFechas(String texto){
+    private static ArrayList<Integer> analizarFechas(String texto){
     	Scanner analizar = new Scanner(texto);
     	int contador = 0;
+    	ArrayList<Integer> intervalos = new ArrayList<Integer>();
     	while(analizar.hasNext()){
     		String palabra = analizar.next();
     		contador = contador + palabra.length() + 1;
+			int[] fechas = null;
     		if(palabra.equals("entre") || palabra.equals("desde")
     				|| palabra.equals("de")){
-    			Fechas.intervalo(texto.substring(contador,
+    			fechas = Fechas.intervalo(texto.substring(contador,
     					texto.length()));
     		} else if(palabra.equals("a") || palabra.equals("posterior")
     				|| palabra.equals("posteriores")){
-    			Fechas.posteriores(texto.substring(contador,
+    			fechas = Fechas.posteriores(texto.substring(contador,
     					texto.length()));
     		} else if(palabra.equals("anteriores") || palabra.equals("anterior")
     				|| palabra.equals("ultimos") || palabra.equals("últimos")){
-    			Fechas.anteriores(texto.substring(contador,
+    			fechas = Fechas.anteriores(texto.substring(contador,
     					texto.length()));
     		}
+    		//Se añaden a la lista las dos fechas del intervalo.
+    		intervalos.add(fechas[0]);
+    		intervalos.add(fechas[1]);
        	}
     	analizar.close();
+    	return intervalos;
     }
     
 }
