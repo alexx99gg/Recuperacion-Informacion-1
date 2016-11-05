@@ -14,6 +14,8 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
@@ -72,7 +74,7 @@ public class SearchFiles {
 		
 		// Creamos el parser para la consulta.
 		QueryParser parser = new QueryParser(Version.LUCENE_44, "description", analyzer);
-		for(int i=4; i<5/*consultas.size()*/; i++){	// Recorremos las consultas.
+		for(int i=0; i<5/*consultas.size()*/; i++){	// Recorremos las consultas.
 			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
 			 Query query = parser.parse(texto);	// Creamos la query.
@@ -146,13 +148,16 @@ public class SearchFiles {
     		campos [i] = etiquetas.get(i).getTitulo();
     	}
     	try{
+    		BooleanQuery query = new BooleanQuery();
     		//Se crea query con los rangos de fechas.
-    		Query[] queryFechas = new Query[intervalos.size()/2];
     		for(int i = 0; i< intervalos.size();i=i+2) {
-    			queryFechas[i/2] = NumericRangeQuery.newIntRange("fecha"+i/2,intervalos.get(i),
-    					intervalos.get(i+1),true,true);
+  			  query.add(NumericRangeQuery.newIntRange("fechaTexto",intervalos.get(i),
+  					intervalos.get(i+1),true,true),BooleanClause.Occur.SHOULD);	
+  			  query.add(NumericRangeQuery.newIntRange("date",intervalos.get(i),
+  					intervalos.get(i+1),true,true),BooleanClause.Occur.SHOULD);	
     		}
-    		Query query = MultiFieldQueryParser.parse(Version.LUCENE_44, contenidos, campos, analyzer);
+    		query.add(MultiFieldQueryParser.parse
+    				(Version.LUCENE_44, contenidos, campos, analyzer),BooleanClause.Occur.SHOULD);	
     		//System.out.println(query.toString());
     		searcher.search(query, 30);
     		TopDocs results = searcher.search(query, 30);
@@ -267,8 +272,10 @@ public class SearchFiles {
     					texto.length()));
     		}
     		//Se añaden a la lista las dos fechas del intervalo.
-    		intervalos.add(fechas[0]);
-    		intervalos.add(fechas[1]);
+    		if(fechas!=null) {
+        		intervalos.add(fechas[0]);
+    			intervalos.add(fechas[1]);
+    		}
        	}
     	analizar.close();
     	return intervalos;
