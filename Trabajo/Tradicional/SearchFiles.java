@@ -44,14 +44,6 @@ public class SearchFiles {
 	 * el índice.
 	 */
 	public static void main(String[] args) throws Exception {
-    
-		args = new String [6];
-		args[0] = "-index";
-		args[1] = "indexTrabajo";
-		args[2] = "-infoNeeds";
-		args[3] = "necesidadesInformacionElegidas.xml";
-		args[4] = "-output";
-		args[5] = "resultados.txt";
 		
 		comprobarArgumentos(args);	// Comprobamos los argumentos.
     
@@ -63,7 +55,7 @@ public class SearchFiles {
 		BM25Similarity simil = new BM25Similarity();
 		searcher.setSimilarity(simil);
 		
-		// Creamos el analizador.
+		// Creamos el analizador e incluimos stopwords.
 		CharArraySet stopSet = obtenerStopWords();
 		Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44,stopSet);
 		
@@ -74,16 +66,21 @@ public class SearchFiles {
 		
 		// Creamos el parser para la consulta.
 		QueryParser parser = new QueryParser(Version.LUCENE_44, "description", analyzer);
-		for(int i=0; i<5/*consultas.size()*/; i++){	// Recorremos las consultas.
+		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
+			
 			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
 			 Query query = parser.parse(texto);	// Creamos la query.
+			 
 			 ArrayList<Integer> intervalos = 
 					 analizarFechas(texto);	// Se obtienen consultas de fechas según patrones.
 			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
+			 
 			 // Creamos la lista de etiquetas a buscar.
 			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
+			 // Buscamos todo el texto en el campo description.
 			 campos.add(new Etiqueta(("description"),texto));
+			
 			 hacerConsulta(tokens,campos);	// Crea la consulta.
 			 // Método que realiza la consulta.
 			 realizarConsulta(consulta.getIdentificador(),searcher,campos,intervalos,analyzer);	
@@ -141,36 +138,41 @@ public class SearchFiles {
     private static void realizarConsulta(String identificador, IndexSearcher searcher, 
     				ArrayList<Etiqueta> etiquetas, ArrayList<Integer> intervalos, Analyzer analyzer){
     	
-    	String [] campos = new String[etiquetas.size()];
-    	String [] contenidos = new String[etiquetas.size()];
-    	for(int i=0; i<campos.length; i++){
+    	String [] campos = new String[etiquetas.size()];	// Array con los campos a buscar.
+    	String [] contenidos = new String[etiquetas.size()];	// Array con contenidos a buscar.
+    	for(int i=0; i<campos.length; i++){	
+    		// Se introducen todos los campos a buscar de tipo texto.
     		contenidos [i] = etiquetas.get(i).getContenido();
     		campos [i] = etiquetas.get(i).getTitulo();
     	}
-    	try{
+    	try{	// Se crea la consulta final.
     		BooleanQuery query = new BooleanQuery();
-    		//Se crea query con los rangos de fechas.
+    		//Se crea query con los rangos de fechas numéricos.
     		for(int i = 0; i< intervalos.size();i=i+2) {
   			  query.add(NumericRangeQuery.newIntRange("fechaTexto",intervalos.get(i),
   					intervalos.get(i+1),true,true),BooleanClause.Occur.SHOULD);	
   			  query.add(NumericRangeQuery.newIntRange("date",intervalos.get(i),
   					intervalos.get(i+1),true,true),BooleanClause.Occur.SHOULD);	
     		}
+    		// Se crea la query con los campos de tipo texto.
     		query.add(MultiFieldQueryParser.parse
     				(Version.LUCENE_44, contenidos, campos, analyzer),BooleanClause.Occur.SHOULD);	
-    		//System.out.println(query.toString());
-    		searcher.search(query, 30);
+    		System.out.println(query.toString());
+    		searcher.search(query, 30);	// Se realiza la búsqueda.
+    		// Se obtienen documentos e información de la búsqueda.
     		TopDocs results = searcher.search(query, 30);
     	    ScoreDoc[] hits = results.scoreDocs;
     	    
-    	    for(int i=0; i<results.totalHits; i++){
+    	    // Se recorren los resultados y se almacenan en un fichero.
+    	    for(int i=0; i<30 && i<results.totalHits; i++){
         		Document doc = searcher.doc(hits[i].doc);
         		ficheroSal.printf(identificador + "\t" + doc.get("path"));
         		if(hits.length != i-1){
         			ficheroSal.println();
         		}
         	}
-    	} catch(Exception e){
+    	} catch(Exception e){	// Se capturan las posibles excepciones.
+    		System.err.println(e.toString());
     		System.err.println("Error al realizar la consulta");
     	}
     }
@@ -181,11 +183,11 @@ public class SearchFiles {
     private static void hacerConsulta(String [] tokens, ArrayList<Etiqueta> campos){
 
     	for(int i=0; i<tokens.length; i++){
-    		if(idioma(tokens[i])){
+    		if(idioma(tokens[i])){	// Busca patrón de idioma.
     			campos.add(new Etiqueta("language",tokens[i]));
-    		} if(publisher(tokens[i])){
+    		} if(publisher(tokens[i])){	// Busca patrón de publisher.
     			campos.add(new Etiqueta("publisher",tokens[i]));
-    		} if(i != tokens.length-1){
+    		} if(i != tokens.length-1){	// Busca patrón de identifier.
     			if(identificador(tokens[i],tokens[i+1])){
     				campos.add(new Etiqueta("identifier", tokens[i+1]));
     			}	
@@ -225,7 +227,7 @@ public class SearchFiles {
     	
     	if (tokenIden.equals("identificador")){
     		try{
-    			Integer.parseInt(tokenNum);
+    			Integer.parseInt(tokenNum);	// Comprueba si es un número.
     			return true;
     		} catch(Exception e){
     			return false;
@@ -238,10 +240,11 @@ public class SearchFiles {
      * Método que introduce las palabras irrelevantes en el analizador.
      */
     public static CharArraySet obtenerStopWords() {
+    	// Lista de stopwords que no aportan nada a las consultas.
     	CharArraySet stopSet = new CharArraySet(Version.LUCENE_44,SpanishAnalyzer.getDefaultStopSet(),
     			false);
     	for(int i = 0;i<stopWords.length;i++) {
-    		stopSet.add(stopWords[i]);
+    		stopSet.add(stopWords[i]);	// Se añaden las palabras consideradas stopwords.
     	}
     	return stopSet;
     	
@@ -251,24 +254,43 @@ public class SearchFiles {
      * Método que comprueba patrones en el texto en busca de fechas.
      */
     private static ArrayList<Integer> analizarFechas(String texto){
+    	// Crea el scanner para analizar la consulta.
     	Scanner analizar = new Scanner(texto);
-    	int contador = 0;
+    	int contador = 0;	// Contados de caracteres leídos.
+    	// Array con intervalos a buscar.
     	ArrayList<Integer> intervalos = new ArrayList<Integer>();
-    	while(analizar.hasNext()){
-    		String palabra = analizar.next();
+    	while(analizar.hasNext()){	// Se leen todos los términos de la consulta.
+    		String palabra = analizar.next();	// Se lee primera palabra.
+    		// Se actualiza el contador.
     		contador = contador + palabra.length() + 1;
 			int[] fechas = null;
     		if(palabra.equals("entre") || palabra.equals("desde")
     				|| palabra.equals("de")){
+    			// Patrón de intervalo [entre/desde/de X hasta/a/y Z]
     			fechas = Fechas.intervalo(texto.substring(contador,
     					texto.length()));
     		} else if(palabra.equals("a") || palabra.equals("posterior")
     				|| palabra.equals("posteriores")){
+    			/*
+    			 * Patrón de años posteriores.
+    			 * [a partir del año A incluido/excluido]
+    			 * [a partir de A [incluido/excluido]
+    			 * [posterior a X]
+    			 */
     			fechas = Fechas.posteriores(texto.substring(contador,
     					texto.length()));
     		} else if(palabra.equals("anteriores") || palabra.equals("anterior")
     				|| palabra.equals("ultimos") || palabra.equals("últimos")){
+    			/*
+    			 * Patrón para años anteriores.
+    			 * [anteriores a X]
+    			 * [anterior a X]
+    			 * [últimos X años]
+    			 */
     			fechas = Fechas.anteriores(texto.substring(contador,
+    					texto.length()));
+    		} else if(palabra.equals("del") || palabra.equals("en")){
+    			fechas = Fechas.exacta(texto.substring(contador,
     					texto.length()));
     		}
     		//Se añaden a la lista las dos fechas del intervalo.
@@ -277,8 +299,8 @@ public class SearchFiles {
     			intervalos.add(fechas[1]);
     		}
        	}
-    	analizar.close();
-    	return intervalos;
+    	analizar.close();	// Se cierra el scanner.
+    	return intervalos;	// Se devuelve la lista con los intervalos.
     }
     
 }

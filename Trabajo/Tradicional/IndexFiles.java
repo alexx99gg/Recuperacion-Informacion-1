@@ -37,12 +37,6 @@ public class IndexFiles {
 	 */
 	public static void main(String[] args) {
 		
-		args = new String [4];
-		args[0] = "-index";
-		args[1] = "indexTrabajo";
-		args[2] = "-docs";
-		args[3] = "recordsdc";
-		
 		comprobarArgumentos(args);	// Se comprueban los argumentos.
 		
 		Date start = new Date();	// Obtiene la fecha de inicio.
@@ -92,7 +86,7 @@ public class IndexFiles {
 			System.err.println("Segundo argumento: -docs");
 			System.exit(-1);
 		}
-		docDir = new File(argumentos[3]);
+		docDir = new File(argumentos[3]);	// Se crea directorio a indexar.
 		try{
 			dir = FSDirectory.open(new File(argumentos[1]));
 			if(!docDir.exists() || !docDir.canRead()){
@@ -100,7 +94,7 @@ public class IndexFiles {
 						+ " no existe o no se puede leer");
 				System.exit(-1);
 			}
-		} catch(IOException e){
+		} catch(IOException e){	// Se captura la posible excepción.
 			System.err.println("Error con el directorio " + argumentos[1]
 					+ " a indexar");
 			System.exit(-1);
@@ -156,10 +150,12 @@ public class IndexFiles {
 						// Comprueba si es campo fecha o fecha en el texto
 						if(etiq.get(i).getTitulo().equals("date") ||
 							etiq.get(i).getTitulo().equals("fechaTexto")){
-							// Indexa la etiqueta.
-							doc.add(new IntField(etiq.get(i).getTitulo(), 
-			            			  Integer.parseInt(etiq.get(i).getContenido()),
-			            					  Field.Store.YES));
+							try{
+								// Indexa la etiqueta.
+								doc.add(new IntField(etiq.get(i).getTitulo(), 
+				            			  Integer.parseInt(etiq.get(i).getContenido()),
+				            					  Field.Store.YES));
+							} catch(NumberFormatException e){}
 						} else{		// Si es de otro tipo...
 							// Indexa la etiqueta.
 							doc.add(new TextField(etiq.get(i).getTitulo(), 
