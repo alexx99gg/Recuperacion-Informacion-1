@@ -68,22 +68,24 @@ public class SearchFiles {
 		QueryParser parser = new QueryParser(Version.LUCENE_44, "description", analyzer);
 		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
 			
-			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
-			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
-			 Query query = parser.parse(texto);	// Creamos la query.
+			// Mostramos un mensaje con la consulta en ejecución.
+			System.out.println("Realizando consulta: " + consultas.get(i).getIdentificador());
+			Consulta consulta = consultas.get(i); // Obtenemos la consulta.
+			String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
+			Query query = parser.parse(texto);	// Creamos la query.
 			 
-			 ArrayList<Integer> intervalos = 
+			ArrayList<Integer> intervalos = 
 					 analizarFechas(texto);	// Se obtienen consultas de fechas según patrones.
-			 String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
+			String [] tokens = obtenerTokens(query);	// Se obtienen los tokens.
 			 
-			 // Creamos la lista de etiquetas a buscar.
-			 ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
-			 // Buscamos todo el texto en el campo description.
-			 campos.add(new Etiqueta(("description"),texto));
+			// Creamos la lista de etiquetas a buscar.
+			ArrayList<Etiqueta> campos = new ArrayList<Etiqueta>();
+			// Buscamos todo el texto en el campo description.
+			campos.add(new Etiqueta(("description"),texto));
 			
-			 hacerConsulta(tokens,campos);	// Crea la consulta.
-			 // Método que realiza la consulta.
-			 realizarConsulta(consulta.getIdentificador(),searcher,campos,intervalos,analyzer);	
+			hacerConsulta(tokens,campos);	// Crea la consulta.
+			// Método que realiza la consulta.
+			realizarConsulta(consulta.getIdentificador(),searcher,campos,intervalos,analyzer);	
 		}
 		
 		ficheroSal.close();	// Cerramos el fichero de salida.
@@ -157,7 +159,6 @@ public class SearchFiles {
     		// Se crea la query con los campos de tipo texto.
     		query.add(MultiFieldQueryParser.parse
     				(Version.LUCENE_44, contenidos, campos, analyzer),BooleanClause.Occur.SHOULD);	
-    		System.out.println(query.toString());
     		searcher.search(query, 30);	// Se realiza la búsqueda.
     		// Se obtienen documentos e información de la búsqueda.
     		TopDocs results = searcher.search(query, 30);
