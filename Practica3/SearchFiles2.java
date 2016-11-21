@@ -48,6 +48,7 @@ public class SearchFiles2 {
 
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
+	  System.out.println("Este es el 2");
 	  comprobarArgumentos(args);	// Comprobamos los argumentos.
 	    
 		// Creamos el índice para lectura.

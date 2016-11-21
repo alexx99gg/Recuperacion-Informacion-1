@@ -36,9 +36,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
-import Trabajo.Consulta;
-import Trabajo.XMLParser;
-
 /** Simple command-line based search demo. */
 public class SearchFiles1 {
 
@@ -117,6 +114,7 @@ public static void buscarConsulta(IndexSearcher searcher, Query query,
 		  String id) throws IOException {
 
   // Collect enough docs to show 5 pages
+	System.out.println(query.toString());
   TopDocs results = searcher.search(query, 30);
   ScoreDoc[] hits = results.scoreDocs;
   

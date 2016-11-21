@@ -55,16 +55,11 @@ public class IndexFiles1 {
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
-	// Para introducir argumentos índice...
-	args = new String[2];
-	args[0] = "-docs";
-	//args[1] = "spanishCore2";
-	args[1] = "dublinCore2";
     String usage = "java org.apache.lucene.demo.IndexFiles"
                  + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index"
                  + "in INDEX_PATH that can be searched with SearchFiles";
-    String indexPath = "index2";
+    String indexPath = null;
     String docsPath = null;
     boolean create = true;
     for(int i=0;i<args.length;i++) {

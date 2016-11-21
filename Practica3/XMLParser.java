@@ -7,6 +7,7 @@ import javax.xml.parsers.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -18,9 +19,10 @@ public class XMLParser {
 	
 	// Lista de etiquetas a obtener.
 	private static final String[] LISTA = {"BoundingBox", "created", "creator","description","format",
-		"identifier", "issued", "language","publisher","subject","temporal", "title","type",};
+		"identifier", "issued", "language","publisher","subject","temporal", "title","type"};
 	// Ficheros a analizar.
     private static FileInputStream fis;
+    private static String fichero;
 
     /*
      * Método constructor de un objeto XMLParser.
@@ -29,6 +31,7 @@ public class XMLParser {
 		
 		try {
 			fis = new FileInputStream(nombre);
+			fichero = nombre;
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -157,5 +160,65 @@ public class XMLParser {
 			}
 		}
 		return false;
+	}
+	
+	 /* Método que recorre la estructurra devuelta por el parser
+	 * y crea la lista de consultas de una necesidad de información.
+	 */
+	public ArrayList<Consulta> parserNeeds() {
+		
+		// Crea el factory para parsear el documento.
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+		// Lista con las consultas.
+		ArrayList<Consulta> consultas = new ArrayList<Consulta>();
+		try {
+			// Crea el objeto que hará el parser del XML.
+			DocumentBuilder builder = factory.newDocumentBuilder();
+
+			// Crea el nuevo documento.
+			InputSource is = new InputSource(fis);
+			// Realizamos el parser.
+			Document doc = builder.parse(is);
+			// Normalizamos.
+			doc.getDocumentElement().normalize();
+
+			// Obtenemos una lista con los elementos según la etiqueta.
+			NodeList nodes = doc.getElementsByTagName("informationNeed");
+
+			// Recorremos todos los nodos hijos.
+			int i = 0;		// Indice para el recorrido.
+			boolean finalizado = false;	// Booleano para terminar.
+			while(!finalizado) {	// Recorremos los nodos.
+				// Obtenemos el nodo.
+				Node nNode = nodes.item(i);
+				Element elemento = (Element) nNode;
+				// Sacamos identificador y necesidad de información.
+				String identificador = elemento.getElementsByTagName("identifier").
+						item(0).getTextContent();
+				String contenido = elemento.getElementsByTagName("text").
+						item(0).getTextContent();
+				String consulta = "";
+				for(int j = 1; j < LISTA.length-1; j++) {
+					if(!LISTA[j].equals("temporal")) {
+						consulta = consulta + LISTA[j] + ":" + contenido + " - ";
+					}
+				}
+				consulta = consulta + LISTA[LISTA.length-1] + ":" + contenido;
+				// Creamos la consulta y la añadimos.
+				consultas.add(new Consulta (identificador,consulta));
+				// Creamos la consulta y la añadimos.
+				consultas.add(new Consulta (identificador,consulta));
+				System.out.println(identificador + "   " +consulta);
+				i = i + 1;		// Actualizamos el índice.
+				if(i == nodes.getLength()){	// Miramos si se ha terminado.
+					finalizado = true;
+				}
+			}
+			return consultas;	// Se devuelve las consultas.
+		} catch (Exception e) {	// Se captura la posible excepción.
+			System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());
+		}
+		return consultas;
 	}
 }
