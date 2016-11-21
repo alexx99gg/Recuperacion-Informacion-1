@@ -1,0 +1,56 @@
+INFORMATION_NEED	1
+precision	1,000
+recall	0,273
+F1	0,429
+prec@10	1,000
+average_precision	1,000
+recall_precision
+0,091	1,000
+0,182	1,000
+0,273	1,000
+interpolated_recall_precision
+0,000	1,000
+0,100	1,000
+0,200	1,000
+
+INFORMATION_NEED	2
+precision	1,000
+recall	0,550
+F1	0,710
+prec@10	1,000
+average_precision	1,000
+recall_precision
+0,050	1,000
+0,100	1,000
+0,150	1,000
+0,200	1,000
+0,250	1,000
+0,300	1,000
+0,350	1,000
+0,400	1,000
+0,450	1,000
+0,500	1,000
+0,550	1,000
+interpolated_recall_precision
+0,000	1,000
+0,100	1,000
+0,200	1,000
+0,300	1,000
+0,400	1,000
+0,500	1,000
+0,600	1,000
+0,700	1,000
+0,800	1,000
+0,900	1,000
+1,000	1,000
+
+TOTAL
+precision	1,000
+recall	0,411
+F1	0,569
+prec@10	1,000
+MAP	1,000
+interpolated_recall_precision
+0,000	1,000
+0,100	1,000
+0,200	1,000

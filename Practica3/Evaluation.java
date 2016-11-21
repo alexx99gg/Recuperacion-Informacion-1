@@ -32,9 +32,9 @@ public class Evaluation {
 		args[0] = "-qrels";
 		args[1] = "dublinCoreRels.txt";
 		args[2] = "-results";
-		args[3] = "salida2.txt";
+		args[3] = "salida1.txt";
 		args[4] = "-output";
-		args[5] = "resultados2.txt";
+		args[5] = "resultados1.txt";
 		
 		comprobarArgumentos(args);	// Comprueba los argumentos.
 		
