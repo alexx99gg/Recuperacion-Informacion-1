@@ -37,9 +37,6 @@ import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
-import Trabajo.Consulta;
-import Trabajo.XMLParser;
-
 /** Simple command-line based search demo. */
 public class SearchFiles2 {
 
@@ -48,7 +45,15 @@ public class SearchFiles2 {
 
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
-	  System.out.println("Este es el 2");
+	  
+	  args = new String [6];
+	  args[0] = "-index";
+	  args[1] = "index2";
+	  args[2] = "-infoNeeds";
+	  args[3] = "informationNeeds.xml";
+	  args[4] = "-output";
+	  args[5] = "salida2.txt";
+	  
 	  comprobarArgumentos(args);	// Comprobamos los argumentos.
 	    
 		// Creamos el índice para lectura.
@@ -56,7 +61,6 @@ public class SearchFiles2 {
 	IndexSearcher searcher = new IndexSearcher(reader);
 
     Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
-   // Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
     
     //Establecemos un modelo probanilistico.
     BM25Similarity simil = new BM25Similarity();
@@ -70,13 +74,14 @@ public class SearchFiles2 {
  // Creamos el parser para la consulta.
  		QueryParser parser = new QueryParser(Version.LUCENE_44, "contents", analyzer);
  		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
- 			
  			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
  			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
  			 Query query = parser.parse(texto);	// Creamos la query.
+ 			 System.out.println(query);
  			 buscarConsulta(searcher, query,consultas.get(i).getIdentificador());
       }
     reader.close();
+    ficheroSal.close();
   }
   
   /*
@@ -127,13 +132,13 @@ public class SearchFiles2 {
     TopDocs results = searcher.search(query, 30);
     ScoreDoc[] hits = results.scoreDocs;
     
- // Se recorren los resultados y se almacenan en un fichero.
+    //Se recorren los resultados y se almacenan en un fichero.
     for(int i=0; i<30 && i<results.totalHits; i++){
-		Document doc = searcher.doc(hits[i].doc);
-		ficheroSal.printf(i + "\t" + doc.get("path"));
-		if(hits.length != i-1){
-			ficheroSal.println();
-		}
-	}
+  		Document doc = searcher.doc(hits[i].doc);
+  		ficheroSal.printf(id + "\t" + doc.get("path"));
+  		if(hits.length != i-1){
+  			ficheroSal.println();
+  		}
+  	}
   }
 }

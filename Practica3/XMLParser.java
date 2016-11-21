@@ -207,9 +207,6 @@ public class XMLParser {
 				consulta = consulta + LISTA[LISTA.length-1] + ":" + contenido;
 				// Creamos la consulta y la añadimos.
 				consultas.add(new Consulta (identificador,consulta));
-				// Creamos la consulta y la añadimos.
-				consultas.add(new Consulta (identificador,consulta));
-				System.out.println(identificador + "   " +consulta);
 				i = i + 1;		// Actualizamos el índice.
 				if(i == nodes.getLength()){	// Miramos si se ha terminado.
 					finalizado = true;

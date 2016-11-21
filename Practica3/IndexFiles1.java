@@ -55,11 +55,15 @@ public class IndexFiles1 {
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
+	// Para introducir argumentos índice...
+		args = new String[2];
+		args[0] = "-docs";
+		args[1] = "dublinCore";
     String usage = "java org.apache.lucene.demo.IndexFiles"
                  + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index"
                  + "in INDEX_PATH that can be searched with SearchFiles";
-    String indexPath = null;
+    String indexPath = "index1";
     String docsPath = null;
     boolean create = true;
     for(int i=0;i<args.length;i++) {
@@ -74,6 +78,8 @@ public class IndexFiles1 {
       }
     }
 
+    System.out.println(indexPath);
+    
     if (docsPath == null) {
       System.err.println("Usage: " + usage);
       System.exit(1);
@@ -220,7 +226,6 @@ public class IndexFiles1 {
         		  // Si es temporal...
         		  doc.add(new IntField(etiq.get(i).getTitulo(), 
             			  etiq.get(i).getFecha(),Field.Store.YES));
-        		  System.out.println(etiq.get(i).getFecha());
         	  }	else{		// Si es de otro tipo...
         		  doc.add(new TextField(etiq.get(i).getTitulo(), 
             			  new BufferedReader(new StringReader(etiq.get(i).getContenido()))));

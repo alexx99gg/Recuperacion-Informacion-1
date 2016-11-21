@@ -17,9 +17,10 @@ public class Evaluation {
 	private static Scanner docRecuperados;	// Fichero para leer resultados.
 	private static Scanner relevancia;	// Fichero con juicios.
 	private static PrintWriter resultados;	// Fichero de resultados.
-	private static Map<Integer, Map<Integer, Integer>> juicios = 
-			new HashMap<Integer, Map<Integer, Integer>> (35); 	// Map con los juicios de relevancia.
+	private static Map<Integer, Map<String, Integer>> juicios = 
+			new HashMap<Integer, Map<String, Integer>> (35); 	// Map con los juicios de relevancia.
 	private static Medidas medidas = new Medidas();
+	private static ArrayList<String> ficherosJuicios = new ArrayList<String>();	// Identificadores de ficheros en juicios.
 	
 	/*
 	 * Método principal que lanza la evaluación del sistema de información
@@ -29,11 +30,11 @@ public class Evaluation {
 		
 		args = new String[6];
 		args[0] = "-qrels";
-		args[1] = "qrels.txt";
+		args[1] = "dublinCoreRels.txt";
 		args[2] = "-results";
-		args[3] = "results.txt";
+		args[3] = "salida2.txt";
 		args[4] = "-output";
-		args[5] = "salida.txt";
+		args[5] = "resultados2.txt";
 		
 		comprobarArgumentos(args);	// Comprueba los argumentos.
 		
@@ -85,19 +86,21 @@ public class Evaluation {
 	 */
 	private static void recuperarJuicios(){
 		
-		int necesidad, docId, rele, necAnterior = 0;		// Datos a leer.
+		int necesidad, rele, necAnterior = 0;		// Datos a leer.
+		String docId = null;
 		boolean primero = true;
-		Map<Integer, Integer> docRelevancia = new HashMap<Integer, Integer>(40);
+		Map<String, Integer> docRelevancia = new HashMap<String, Integer>(40);
 		while(relevancia.hasNextLine()){	// Se recorren todas las líneas.
 			// Se leen los tres datos.
 			necesidad = relevancia.nextInt();
-			docId = relevancia.nextInt();
+			docId = relevancia.next();
+			ficherosJuicios.add(docId);
 			rele = relevancia.nextInt();
 			if(primero){necAnterior = necesidad; primero = false;}
 			if(necAnterior != necesidad){
 				juicios.put(necAnterior, docRelevancia);
 				necAnterior = necesidad;
-				docRelevancia = new HashMap<Integer, Integer>(40);
+				docRelevancia = new HashMap<String, Integer>(40);
 			}
 			docRelevancia.put(docId, rele);
 			relevancia.nextLine();	// Se pasa a la siguiente línea.
@@ -112,7 +115,8 @@ public class Evaluation {
 		
 		double relevante = 0, total = 0;		// Variables para el cálculo.
 		double totalRelevante = 0;	// Número total de documentos relevantes.
-		int necesidad = 0, docId, necAnterior = 0;	// Variables para leer del fichero.
+		int necesidad = 0, necAnterior = 0;	// Variables para leer del fichero.
+		String docId = null;
 		// Variables para la evaluación.
 		double precision10 = 0.0;
 		double precisionProm = 0.0;
@@ -120,10 +124,10 @@ public class Evaluation {
 		ArrayList<Par> precisionRecall = null;
 		while(docRecuperados.hasNextLine()){	// Se recorre todo el fichero.
 			necesidad = docRecuperados.nextInt();	// Se leen las variables del fichero.
-			docId = docRecuperados.nextInt();
+			docId = docRecuperados.next();
 			if(primero){
 				necAnterior = necesidad; primero = false;
-				Map <Integer, Integer> recallDoc = juicios.get(necAnterior);
+				Map <String, Integer> recallDoc = juicios.get(necAnterior);
 				totalRelevante = obtenerRelevantes(recallDoc);
 				precisionRecall = new ArrayList<Par>(recallDoc.size());
 			}
@@ -133,13 +137,15 @@ public class Evaluation {
 						precision10, precisionProm, Integer.toString(necAnterior));
 				necAnterior = necesidad;
 				relevante = 0; total = 0; precisionProm = 0.0;
-				Map <Integer, Integer> recallDoc = juicios.get(necesidad);
+				Map <String, Integer> recallDoc = juicios.get(necesidad);
 				totalRelevante = obtenerRelevantes(recallDoc);
 				precisionRecall = new ArrayList<Par>(recallDoc.size());
 			}
 			try{
 				// Acumular
-				int rele = juicios.get(necesidad).get(docId);
+				String identificador = docId.substring(docId.lastIndexOf("/")+1,
+						docId.length());
+				int rele = juicios.get(necesidad).get(identificador);
 				relevante = relevante + rele;
 				total++;
 				if(rele == 1){	// El documento es relevante.
@@ -150,7 +156,7 @@ public class Evaluation {
 				if(total==10){	// Se comprueba para el precision10.
 					precision10 = relevante/total;
 				}
-			} catch(Exception e){}
+			} catch(Exception e){System.out.println(e.getMessage());}
 			docRecuperados.nextLine();
 		}
 		// Calcular medidas para el último.
@@ -162,11 +168,11 @@ public class Evaluation {
 	 * Método que calcula el número total de documentos relevantes de una
 	 * necesidad de información.
 	 */
-	private static int obtenerRelevantes(Map<Integer, Integer> relDoc){
+	private static int obtenerRelevantes(Map<String, Integer> relDoc){
 		
 		int total = 0;
 		for(int i=1; i<=relDoc.size(); i++){
-			total = total + relDoc.get(i);
+			total = total + relDoc.get(ficherosJuicios.get(i-1));
 		}
 		return total;
 	}

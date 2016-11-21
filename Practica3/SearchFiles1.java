@@ -45,11 +45,19 @@ private static PrintWriter ficheroSal;	// Fichero de resultados.
 
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
+	  
+	  args = new String [6];
+	  args[0] = "-index";
+	  args[1] = "index1";
+	  args[2] = "-infoNeeds";
+	  args[3] = "informationNeeds.xml";
+	  args[4] = "-output";
+	  args[5] = "salida1.txt";
+	  
 	  comprobarArgumentos(args);	// Comprobamos los argumentos.
 	  
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(args[1])));
 		IndexSearcher searcher = new IndexSearcher(reader);
-    //Analyzer analyzer = new SpanishAnalyzer(Version.LUCENE_44);
     Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_44);
 
     // Creamos el parser para las consultas.
@@ -57,16 +65,17 @@ private static PrintWriter ficheroSal;	// Fichero de resultados.
  	// Creamos lista de consultas.
  	ArrayList<Consulta> consultas = parserXML.parserNeeds();
 
- // Creamos el parser para la consulta.
- 		QueryParser parser = new QueryParser(Version.LUCENE_44, "contents", analyzer);
- 		for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.
- 			
- 			 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
- 			 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
- 			 Query query = parser.parse(texto);	// Creamos la query.
- 			 buscarConsulta(searcher, query,consultas.get(i).getIdentificador());
-      }
+ 	// Creamos el parser para la consulta.
+ 	QueryParser parser = new QueryParser(Version.LUCENE_44, "contents", analyzer);
+ 	for(int i=0; i<consultas.size(); i++){	// Recorremos las consultas.	
+ 		 Consulta consulta = consultas.get(i); // Obtenemos la consulta.
+ 		 String texto = consulta.getNecesidad().trim();	// Normalizamos texto.
+ 		 Query query = parser.parse(texto);	// Creamos la query.
+ 		 System.out.println(query);
+ 		 buscarConsulta(searcher, query,consultas.get(i).getIdentificador());
+    }
     reader.close();
+    ficheroSal.close();
   }
 
   /*
@@ -114,14 +123,13 @@ public static void buscarConsulta(IndexSearcher searcher, Query query,
 		  String id) throws IOException {
 
   // Collect enough docs to show 5 pages
-	System.out.println(query.toString());
   TopDocs results = searcher.search(query, 30);
   ScoreDoc[] hits = results.scoreDocs;
-  
-// Se recorren los resultados y se almacenan en un fichero.
+      
+  //Se recorren los resultados y se almacenan en un fichero.
   for(int i=0; i<30 && i<results.totalHits; i++){
 		Document doc = searcher.doc(hits[i].doc);
-		ficheroSal.printf(i + "\t" + doc.get("path"));
+		ficheroSal.printf(id + "\t" + doc.get("path"));
 		if(hits.length != i-1){
 			ficheroSal.println();
 		}
