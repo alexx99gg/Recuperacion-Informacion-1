@@ -59,7 +59,7 @@ public class IndexFiles {
 	args = new String[2];
 	args[0] = "-docs";
 	//args[1] = "spanishCore2";
-	args[1] = "dublinCore2";
+	args[1] = "dublinCore";
     String usage = "java org.apache.lucene.demo.IndexFiles"
                  + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index"
