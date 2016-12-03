@@ -65,7 +65,7 @@ public class IndexFiles {
 	      // Crea el objeto índice para indexar los documentos.
 	      IndexWriter writer = new IndexWriter(dir, iwc);
 	      if(dump) {
-	    	  indexarSegmentos(writer, docDir);
+	    	  indexarSegmentos(writer, docDir,0);
 	      } else {
 	    	  indexarDocumentos(writer, docDir);		// Indexa los documentos.
 	      }
@@ -195,8 +195,9 @@ public class IndexFiles {
 	* Método que indexa todos los documentos a partir de un cierto
 	* índice pasado como parámetro.
 	*/
-	private static void indexarSegmentos(IndexWriter writer, File file)
+	private static void indexarSegmentos(IndexWriter writer, File file,int k)
 			throws IOException {
+		int j =0;
 		if (file.canRead()) {		// Comprueba si se puede leer el directorio.
 			if (file.isDirectory()) {	// Comprueba si es directorio.
 				// Si es directorio...
@@ -204,17 +205,14 @@ public class IndexFiles {
 				// an IO error could occur
 				if (files != null) {
 					for (int i = 0; i < files.length; i++) {
-						indexarSegmentos(writer, new File(file, files[i]));
+						indexarSegmentos(writer, new File(file, files[i]),i+1);
 					}
 				}
 			} else {	// Si es fichero...
-
-				System.out.println("Indexando documento: " +  file);
 				FileInputStream fis;	// Creamos el objeto para leer.
-				//CODIGO PARA CRAWLER EMPIEZA AQUI
+
 				try {
 					String xml = "";	//Se inicializa el texto xml.
-					
 					try {	// Asignamos el objeto al fichero.
 						fis = new FileInputStream(file);
 					} catch (FileNotFoundException fnfe) {
@@ -223,36 +221,42 @@ public class IndexFiles {
 								+ " ha dado error.");
 						return;
 					}
-					//Se crea el lector del fichero
+					// Se crea el lector del fichero
 		    		FileReader lector = new FileReader(file);
 					BufferedReader buffer = new BufferedReader(lector);
-					String linea = buffer.readLine();
-					//Mientras no se acabe el fichero se realiza el bucle.
-					while(linea != null) {
+					
+					String linea = buffer.readLine();	// Se lee la primera línea.
+					while(linea != null) {	// Mientras no se acabe el fichero se realiza el bucle.
+						// Si la línea es de texto a indexar...
 						if(linea.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
-							//Si comienzan los datos de interes se empieza a guardar la informacion.
-							xml = linea;
-							//Se guarda en xml hasta finalizar los datos de interes.
-							while(!linea.contains("</oai_dc:dc>")) {
-								linea = buffer.readLine();
-								xml = xml + "\n" + linea;
+							xml = linea;	// Se guarda la línea.
+							String ultimo = "";
+							if(!linea.contains("</oai_dc:dc>")){		
+								// Se comprueba si el texto está en varias líneas.
+								while(!ultimo.contains("</oai_dc:dc>")) {
+									//Se guarda en xml hasta finalizar los datos de interes.
+									ultimo = buffer.readLine();
+									xml = xml + "\n" + ultimo;
+								}
 							}
 							//Se crea un fichero temporal.
-							File temp = new File("temp.xml");
-							//Se escriben los datos obtenidos anteriormente en el fichero temporal.
+							File temp = new File("temp/temp"+k+j+".xml");
+							j++;	// Se actualiza el índice.
+							// Se escriben los datos obtenidos anteriormente en el fichero temporal.
 							FileWriter escritor = new FileWriter(temp.getAbsolutePath());
 							BufferedWriter bufferW = new BufferedWriter(escritor);
 							bufferW.write(xml);
 							bufferW.close();
 							escritor.close();
-							//ACABA AQUI
-							
 							
 							try {
+								// Obtenemos el identificador del documento.
+								String identifier = xml.substring(xml.indexOf("identifier")+11);
+								identifier = identifier.substring(0,identifier.indexOf("<"));
 								Document doc = new Document();	// Crea un objeto documento.
 
 								// Añaidmos el path.
-								Field pathField = new StringField("path", file.getPath(), Field.Store.YES);
+								Field pathField = new StringField("path", identifier, Field.Store.YES);
 								doc.add(pathField);
 
 								// Añade la fecha de la última modificación.
@@ -278,23 +282,22 @@ public class IndexFiles {
 												new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
 									}
 								}
-								// Indica por pantalla el documento indexado.
+								System.out.println("Indexando documento: " +  identifier);
 								writer.addDocument(doc);    	// Indexa el documento.  
 							} finally {
 								fis.close();		// Se cierra el canal.
 							}
-							//temp.delete();	//Se elimina el fichero temporal.
+							temp.delete();	// Se elimina el fichero temporal.
 						}
-						//ESTO TAMBIEN ES DE LA PARTE D SEGMENTOS
-						xml = "";					//Se reinicializa la variable xml.
-						linea = buffer.readLine();	//Se lee siguiete linea del fichero.
+						// Se reinician las variables.
+						xml = "";					// Se reinicializa la variable xml.
+						linea = buffer.readLine();	// Se lee siguiete linea del fichero.
 					}
-					buffer.close(); //Una vez acabado el fichero se cierra el buffer.
-					lector.close();
+					buffer.close(); // Una vez acabado el fichero se cierra el buffer.
+					lector.close();	// Se cierra el lector de entrada.
 		    	} catch(IOException e) {
-		    		
+		    		System.err.println("Error al obtener el archivo del segmento.");
 		    	}
-				//ACABA AQUI
 			}
 		} else{	// Se indica que le directorio no se puede leer.
 			System.err.println("El directorio " + file.getAbsolutePath() 
