@@ -229,14 +229,13 @@ public class IndexFiles {
 					String linea = buffer.readLine();
 					//Mientras no se acabe el fichero se realiza el bucle.
 					while(linea != null) {
-						if(linea.equals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
-							//Sicomienzan los datos de interes se empieza a guardar la informacion.
+						if(linea.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+							//Si comienzan los datos de interes se empieza a guardar la informacion.
 							xml = linea;
-							String ultimo = "";
 							//Se guarda en xml hasta finalizar los datos de interes.
-							while(!ultimo.equals("</oai_dc:dc>")) {
-								ultimo = buffer.readLine();
-								xml = xml + "\n" + ultimo;
+							while(!linea.contains("</oai_dc:dc>")) {
+								linea = buffer.readLine();
+								xml = xml + "\n" + linea;
 							}
 							//Se crea un fichero temporal.
 							File temp = new File("temp.xml");
@@ -284,7 +283,7 @@ public class IndexFiles {
 							} finally {
 								fis.close();		// Se cierra el canal.
 							}
-							file.delete();	//Se elimina el fichero temporal.
+							//temp.delete();	//Se elimina el fichero temporal.
 						}
 						//ESTO TAMBIEN ES DE LA PARTE D SEGMENTOS
 						xml = "";					//Se reinicializa la variable xml.
