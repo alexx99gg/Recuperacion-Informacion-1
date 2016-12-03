@@ -16,9 +16,12 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ public class IndexFiles {
 
 	private static File docDir; // Directorio de los documentos a indexar.
 	private static Directory dir; // Directorio donde se guarda el índice.
+	private static boolean dump = false;
 	
 	/*
 	 * Método principal que indexa todos los ficheros en un directorio dado.
@@ -40,8 +44,8 @@ public class IndexFiles {
 		args = new String[4];
 		args[0] = "-index";
 		args[1] = "index";
-		args[2] = "-docs";
-		args[3] = "recordsdc";
+		args[2] = "-dump";
+		args[3] = "segmentos";
 		
 		comprobarArgumentos(args);	// Se comprueban los argumentos.
 		
@@ -60,7 +64,11 @@ public class IndexFiles {
 
 	      // Crea el objeto índice para indexar los documentos.
 	      IndexWriter writer = new IndexWriter(dir, iwc);
-	      indexarDocumentos(writer, docDir);		// Indexa los documentos.
+	      if(dump) {
+	    	  indexarSegmentos(writer, docDir);
+	      } else {
+	    	  indexarDocumentos(writer, docDir);		// Indexa los documentos.
+	      }
 
 	      writer.close();	// Cierra el indexador.
 
@@ -81,18 +89,22 @@ public class IndexFiles {
 		
 		if(argumentos.length != 4){	// Comprueba el número de argumentos.
 			System.err.println("Usar: java IndexFiles -index <indexPath>"
-					+ " -docs <docsPath>");
+					+ " [-docs | -dump] <docsPath> ");
 			System.exit(-1);
 		}
 		if(!argumentos[0].equals("-index")){		// Comprueba primer argumento.
 			System.err.println("Primer argumento: -index");
 			System.exit(-1);
 		}
-		if(!argumentos[2].equals("-docs")){		// Comprueba segundo argumento.
+		if(!argumentos[2].equals("-docs") && !argumentos[2].equals("-dump")){		
+			// Comprueba segundo argumento.
 			System.err.println("Segundo argumento: -docs");
 			System.exit(-1);
-		}
+		} 
 		docDir = new File(argumentos[3]);	// Se crea directorio a indexar.
+		if(argumentos[2].equals("-dump")) {
+			dump = true;
+		}
 		try{
 			dir = FSDirectory.open(new File(argumentos[1]));
 			if(!docDir.exists() || !docDir.canRead()){
@@ -114,7 +126,6 @@ public class IndexFiles {
 	*/
 	private static void indexarDocumentos(IndexWriter writer, File file)
 			throws IOException {
-		
 		if (file.canRead()) {		// Comprueba si se puede leer el directorio.
 			if (file.isDirectory()) {	// Comprueba si es directorio.
 				// Si es directorio...
@@ -146,7 +157,6 @@ public class IndexFiles {
 
 					// Añade la fecha de la última modificación.
 					doc.add(new LongField("modified", file.lastModified(), Field.Store.YES));
-
 					// Crea el parser para el documento.
 					XMLParser p = new XMLParser(file.getPath());
 					// Obtiene las etiquetas del documento.
@@ -174,6 +184,111 @@ public class IndexFiles {
 				} finally {
 					fis.close();		// Se cierra el canal.
 				}
+			}
+		} else{	// Se indica que le directorio no se puede leer.
+			System.err.println("El directorio " + file.getAbsolutePath() 
+					+ " no se puede leer.");		
+		}
+	}
+	
+	/*
+	* Método que indexa todos los documentos a partir de un cierto
+	* índice pasado como parámetro.
+	*/
+	private static void indexarSegmentos(IndexWriter writer, File file)
+			throws IOException {
+		if (file.canRead()) {		// Comprueba si se puede leer el directorio.
+			if (file.isDirectory()) {	// Comprueba si es directorio.
+				// Si es directorio...
+				String[] files = file.list();
+				// an IO error could occur
+				if (files != null) {
+					for (int i = 0; i < files.length; i++) {
+						indexarSegmentos(writer, new File(file, files[i]));
+					}
+				}
+			} else {	// Si es fichero...
+
+				System.out.println("Indexando documento: " +  file);
+				FileInputStream fis;	// Creamos el objeto para leer.
+				//CODIGO PARA CRAWLER EMPIEZA AQUI
+				try {
+					String xml = "";
+					
+					try {	// Asignamos el objeto al fichero.
+						fis = new FileInputStream(file);
+					} catch (FileNotFoundException fnfe) {
+						// Capturamos la posible excepción.
+						System.err.println("El archivo " + file.getAbsolutePath()
+								+ " ha dado error.");
+						return;
+					}
+		    		FileReader lector = new FileReader(file);
+					BufferedReader buffer = new BufferedReader(lector);
+					String linea = buffer.readLine();
+					while(linea != null) {
+						if(linea.equals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+							xml = linea;
+							String ultimo = "";
+							while(!ultimo.equals("</oai_dc:dc>")) {
+								ultimo = buffer.readLine();
+								xml = xml + "\n" + ultimo;
+							}
+							File temp = new File("temp.xml");
+							FileWriter escritor = new FileWriter(temp.getAbsolutePath());
+							BufferedWriter bufferW = new BufferedWriter(escritor);
+							bufferW.write(xml);
+							bufferW.close();
+							escritor.close();
+							//ACABA AQUI
+							
+							
+							try {
+								Document doc = new Document();	// Crea un objeto documento.
+
+								// Añaidmos el path.
+								Field pathField = new StringField("path", file.getPath(), Field.Store.YES);
+								doc.add(pathField);
+
+								// Añade la fecha de la última modificación.
+								doc.add(new LongField("modified", file.lastModified(), Field.Store.YES));
+								// Crea el parser para el documento.
+								XMLParser p = new XMLParser(temp.getPath());
+								// Obtiene las etiquetas del documento.
+								ArrayList<Etiqueta> etiq = p.parserDocs();
+								// Recorre las etiquetas indexando el contenido.
+								for(int i = 0; i<etiq.size(); i++) {
+									// Comprueba si es campo fecha o fecha en el texto
+									if(etiq.get(i).getTitulo().equals("date") ||
+										etiq.get(i).getTitulo().equals("fechaTexto")){
+										try{
+											// Indexa la etiqueta.
+											doc.add(new IntField(etiq.get(i).getTitulo(), 
+							            			  Integer.parseInt(etiq.get(i).getContenido()),
+							            					  Field.Store.YES));
+										} catch(NumberFormatException e){}
+									} else{		// Si es de otro tipo...
+										// Indexa la etiqueta.
+										doc.add(new TextField(etiq.get(i).getTitulo(), 
+												new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
+									}
+								}
+								// Indica por pantalla el documento indexado.
+								writer.addDocument(doc);    	// Indexa el documento.  
+							} finally {
+								fis.close();		// Se cierra el canal.
+							}
+							//file.delete();
+						}
+						//ESTO TAMBIEN ES DE LA PARTE D SEGMENTOS
+						xml = "";
+						linea = buffer.readLine();
+					}
+					buffer.close();
+		    	} catch(IOException e) {
+		    		
+		    	}
+				//ACABA AQUI
 			}
 		} else{	// Se indica que le directorio no se puede leer.
 			System.err.println("El directorio " + file.getAbsolutePath() 
