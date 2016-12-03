@@ -34,7 +34,7 @@ public class IndexFiles {
 
 	private static File docDir; // Directorio de los documentos a indexar.
 	private static Directory dir; // Directorio donde se guarda el índice.
-	private static boolean dump = false;
+	private static boolean dump = false;	//Indica si se indexaran segmentos de un crawler.
 	
 	/*
 	 * Método principal que indexa todos los ficheros en un directorio dado.
@@ -102,7 +102,7 @@ public class IndexFiles {
 			System.exit(-1);
 		} 
 		docDir = new File(argumentos[3]);	// Se crea directorio a indexar.
-		if(argumentos[2].equals("-dump")) {
+		if(argumentos[2].equals("-dump")) {	//Se indica si se usaran segmentos.
 			dump = true;
 		}
 		try{
@@ -213,7 +213,7 @@ public class IndexFiles {
 				FileInputStream fis;	// Creamos el objeto para leer.
 				//CODIGO PARA CRAWLER EMPIEZA AQUI
 				try {
-					String xml = "";
+					String xml = "";	//Se inicializa el texto xml.
 					
 					try {	// Asignamos el objeto al fichero.
 						fis = new FileInputStream(file);
@@ -223,18 +223,24 @@ public class IndexFiles {
 								+ " ha dado error.");
 						return;
 					}
+					//Se crea el lector del fichero
 		    		FileReader lector = new FileReader(file);
 					BufferedReader buffer = new BufferedReader(lector);
 					String linea = buffer.readLine();
+					//Mientras no se acabe el fichero se realiza el bucle.
 					while(linea != null) {
 						if(linea.equals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+							//Sicomienzan los datos de interes se empieza a guardar la informacion.
 							xml = linea;
 							String ultimo = "";
+							//Se guarda en xml hasta finalizar los datos de interes.
 							while(!ultimo.equals("</oai_dc:dc>")) {
 								ultimo = buffer.readLine();
 								xml = xml + "\n" + ultimo;
 							}
+							//Se crea un fichero temporal.
 							File temp = new File("temp.xml");
+							//Se escriben los datos obtenidos anteriormente en el fichero temporal.
 							FileWriter escritor = new FileWriter(temp.getAbsolutePath());
 							BufferedWriter bufferW = new BufferedWriter(escritor);
 							bufferW.write(xml);
@@ -278,13 +284,14 @@ public class IndexFiles {
 							} finally {
 								fis.close();		// Se cierra el canal.
 							}
-							//file.delete();
+							file.delete();	//Se elimina el fichero temporal.
 						}
 						//ESTO TAMBIEN ES DE LA PARTE D SEGMENTOS
-						xml = "";
-						linea = buffer.readLine();
+						xml = "";					//Se reinicializa la variable xml.
+						linea = buffer.readLine();	//Se lee siguiete linea del fichero.
 					}
-					buffer.close();
+					buffer.close(); //Una vez acabado el fichero se cierra el buffer.
+					lector.close();
 		    	} catch(IOException e) {
 		    		
 		    	}
