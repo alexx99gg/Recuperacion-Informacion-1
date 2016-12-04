@@ -41,6 +41,12 @@ public class IndexFiles {
 	 */
 	public static void main(String[] args) {
 				
+		args = new String[4];
+		args[0] = "-index";
+		args[1] = "index";
+		args[2] = "-dump";
+		args[3] = "segmentos";
+		
 		comprobarArgumentos(args);	// Se comprueban los argumentos.
 		
 		Date start = new Date();	// Obtiene la fecha de inicio.
@@ -59,7 +65,7 @@ public class IndexFiles {
 	      // Crea el objeto índice para indexar los documentos.
 	      IndexWriter writer = new IndexWriter(dir, iwc);
 	      if(dump) {
-	    	  indexarSegmentos(writer, docDir,0);
+	    	  indexarSegmentos(writer, docDir);
 	      } else {
 	    	  indexarDocumentos(writer, docDir);		// Indexa los documentos.
 	      }
@@ -191,9 +197,8 @@ public class IndexFiles {
 	* Método que indexa todos los documentos a partir de un cierto
 	* índice pasado como parámetro.
 	*/
-	private static void indexarSegmentos(IndexWriter writer, File file,int k)
+	private static void indexarSegmentos(IndexWriter writer, File file)
 			throws IOException {
-		int j =0;
 		if (file.canRead()) {		// Comprueba si se puede leer el directorio.
 			if (file.isDirectory()) {	// Comprueba si es directorio.
 				// Si es directorio...
@@ -201,7 +206,7 @@ public class IndexFiles {
 				// an IO error could occur
 				if (files != null) {
 					for (int i = 0; i < files.length; i++) {
-						indexarSegmentos(writer, new File(file, files[i]),i+1);
+						indexarSegmentos(writer, new File(file, files[i]));
 					}
 				}
 			} else {	// Si es fichero...
@@ -225,19 +230,15 @@ public class IndexFiles {
 					while(linea != null) {	// Mientras no se acabe el fichero se realiza el bucle.
 						// Si la línea es de texto a indexar...
 						if(linea.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
-							xml = linea;	// Se guarda la línea.
-							String ultimo = "";
-							if(!linea.contains("</oai_dc:dc>")){		
-								// Se comprueba si el texto está en varias líneas.
-								while(!ultimo.contains("</oai_dc:dc>")) {
-									//Se guarda en xml hasta finalizar los datos de interes.
-									ultimo = buffer.readLine();
-									xml = xml + "\n" + ultimo;
-								}
+							xml = linea;	// Se guarda la línea.	
+							// Se comprueba si el texto está en varias líneas.
+							while(!linea.contains("</oai_dc:dc>")) {
+								//Se guarda en xml hasta finalizar los datos de interes.
+								linea = buffer.readLine();
+								xml = xml + "\n" + linea;
 							}
 							//Se crea un fichero temporal.
-							File temp = new File("temp"+k+j+".xml");
-							j++;	// Se actualiza el índice.
+							File temp = new File("temp.xml");
 							// Se escriben los datos obtenidos anteriormente en el fichero temporal.
 							FileWriter escritor = new FileWriter(temp.getAbsolutePath());
 							BufferedWriter bufferW = new BufferedWriter(escritor);
@@ -284,8 +285,8 @@ public class IndexFiles {
 												new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
 									}
 								}
-								System.out.println("Indexando documento: " + "segmento" +
-										k + "/" + identifier);
+								System.out.println("Indexando documento: " + file.getName() +
+										"/" + identifier);
 								writer.addDocument(doc);    	// Indexa el documento.  
 							} finally {
 								fis.close();		// Se cierra el canal.
