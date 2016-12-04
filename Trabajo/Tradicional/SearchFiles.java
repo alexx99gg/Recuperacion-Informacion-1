@@ -45,14 +45,6 @@ public class SearchFiles {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		args = new String[6];
-		args[0] = "-index";
-		args[1] = "index";
-		args[2] = "-infoNeeds";
-		args[3] = "necesidadesInformacionElegidas.xml";
-		args[4] = "-output";
-		args[5] = "resultados.txt";
-		
 		comprobarArgumentos(args);	// Comprobamos los argumentos.
     
 		// Creamos el índice para lectura.

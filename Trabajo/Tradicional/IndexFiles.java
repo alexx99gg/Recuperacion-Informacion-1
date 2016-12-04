@@ -40,13 +40,7 @@ public class IndexFiles {
 	 * Método principal que indexa todos los ficheros en un directorio dado.
 	 */
 	public static void main(String[] args) {
-		
-		args = new String[4];
-		args[0] = "-index";
-		args[1] = "index";
-		args[2] = "-dump";
-		args[3] = "segmentos";
-		
+				
 		comprobarArgumentos(args);	// Se comprueban los argumentos.
 		
 		Date start = new Date();	// Obtiene la fecha de inicio.
@@ -151,8 +145,10 @@ public class IndexFiles {
 				try {
 					Document doc = new Document();	// Crea un objeto documento.
 
-					// Añaidmos el path.
-					Field pathField = new StringField("path", file.getPath(), Field.Store.YES);
+					// Añadimos el path.
+					String path = file.getPath().substring(file.getPath().indexOf("/")+1,
+							file.getPath().length());
+					Field pathField = new StringField("path", path, Field.Store.YES);
 					doc.add(pathField);
 
 					// Añade la fecha de la última modificación.
@@ -240,7 +236,7 @@ public class IndexFiles {
 								}
 							}
 							//Se crea un fichero temporal.
-							File temp = new File("temp/temp"+k+j+".xml");
+							File temp = new File("temp"+k+j+".xml");
 							j++;	// Se actualiza el índice.
 							// Se escriben los datos obtenidos anteriormente en el fichero temporal.
 							FileWriter escritor = new FileWriter(temp.getAbsolutePath());
@@ -253,6 +249,12 @@ public class IndexFiles {
 								// Obtenemos el identificador del documento.
 								String identifier = xml.substring(xml.indexOf("identifier")+11);
 								identifier = identifier.substring(0,identifier.indexOf("<"));
+								String numero = identifier.substring(identifier.lastIndexOf("/")+1,
+										identifier.length());
+								identifier = identifier.substring(identifier.indexOf("//")+2,
+										identifier.length());
+								identifier = "oai_" + identifier.substring(0,identifier.indexOf("/"))
+										+ "_" + numero + ".xml";
 								Document doc = new Document();	// Crea un objeto documento.
 
 								// Añaidmos el path.
@@ -282,7 +284,8 @@ public class IndexFiles {
 												new BufferedReader(new StringReader(etiq.get(i).getContenido()))));
 									}
 								}
-								System.out.println("Indexando documento: " +  identifier);
+								System.out.println("Indexando documento: " + "segmento" +
+										k + "/" + identifier);
 								writer.addDocument(doc);    	// Indexa el documento.  
 							} finally {
 								fis.close();		// Se cierra el canal.
