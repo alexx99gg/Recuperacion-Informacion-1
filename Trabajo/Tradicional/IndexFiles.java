@@ -44,8 +44,8 @@ public class IndexFiles {
 		args = new String[4];
 		args[0] = "-index";
 		args[1] = "index";
-		args[2] = "-dump";
-		args[3] = "segmentos";
+		args[2] = "-docs";
+		args[3] = "recordsdc";
 		
 		comprobarArgumentos(args);	// Se comprueban los argumentos.
 		

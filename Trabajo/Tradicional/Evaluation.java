@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-/*
+/**
  * Clase con métodos necesarios para realizar la evaluación de un cierto
  * sistema de información.
  */
@@ -19,7 +19,7 @@ public class Evaluation {
 	private static PrintWriter resultados;	// Fichero de resultados.
 	private static Map<String, Map<String, Integer>> juicios = 
 			new HashMap<String, Map<String, Integer>> (35); 	// Map con los juicios de relevancia.
-	private static Medidas medidas = new Medidas();
+	private static Medidas medidas = new Medidas();	// Creamos el objeto para las medidas globales.
 	private static ArrayList<String> ficherosJuicios = new ArrayList<String>();	// Identificadores de ficheros en juicios.
 	private static ArrayList<String> necesidades = new ArrayList<String>();	// Identificadores de las necesidades.
 	
@@ -38,6 +38,8 @@ public class Evaluation {
 		args[5] = "evaluacion.txt";
 		
 		comprobarArgumentos(args);	// Comprueba los argumentos.
+		
+		System.out.println("Comenzando proceso de evaluación...");
 		
 		recuperarJuicios();	// Recupera los juicios de relevancia.
 		
@@ -90,24 +92,30 @@ public class Evaluation {
 		int rele = 0;		// Datos a leer.
 		String docId, necesidad, necAnterior = null;
 		boolean primero = true;
+		// Map para la necesidad y si es o no relevante.
 		Map<String, Integer> docRelevancia = new HashMap<String, Integer>(40);
 		while(relevancia.hasNextLine()){	// Se recorren todas las líneas.
 			// Se leen los tres datos.
-			necesidad = relevancia.next();
-			docId = relevancia.next();
-			ficherosJuicios.add(docId);
-			rele = relevancia.nextInt();
-			if(primero){necAnterior = necesidad; primero = false;necesidades.add(necesidad);}
-			if(!necAnterior.equals(necesidad)){
-				juicios.put(necAnterior, docRelevancia);
-				necAnterior = necesidad;
-				necesidades.add(necesidad);
-				docRelevancia = new HashMap<String, Integer>(40);
+			necesidad = relevancia.next();	// Se lee la necesidad.
+			docId = relevancia.next();		// Se lee el id del documento.
+			ficherosJuicios.add(docId);		// Se añade a la lista el id del documento.
+			rele = relevancia.nextInt();	// Se obtiene la relevancia.
+			if(primero){	// Si es el primero se inicializan las variables.
+				necAnterior = necesidad; 
+				primero = false;
+				necesidades.add(necesidad);	// Se añade al lista de necesidades.
 			}
-			docRelevancia.put(docId, rele);
+			if(!necAnterior.equals(necesidad)){	// Si se lee una necesidad nueva...
+				// Se añade el map de documento y relevancia asociado a la necesidad.
+				juicios.put(necAnterior, docRelevancia);	
+				necAnterior = necesidad;	// Se inicializa la variable.
+				necesidades.add(necesidad);	// Se añade la necesidad a la lista de necesidades.
+				docRelevancia = new HashMap<String, Integer>(40);	// Se crea el nuevo map.
+			}
+			docRelevancia.put(docId, rele);	// Se añade al map el documento y su relevancia.
 			relevancia.nextLine();	// Se pasa a la siguiente línea.
 		}
-		juicios.put(necAnterior, docRelevancia);
+		juicios.put(necAnterior, docRelevancia);	// Si se ha leido todo, se añade la última necesidad.
 	}
 	
 	/*
@@ -123,50 +131,60 @@ public class Evaluation {
 		double precision10 = 0.0;
 		double precisionProm = 0.0;
 		boolean primero = true;	// Booleano para saber si es el primero.
-		ArrayList<Par> precisionRecall = null;
-		int indiceNecesidad = 0, indiceJuicio = 0;
+		ArrayList<Par> precisionRecall = null;	// Array para la curva precisión-recall.
+		int indiceNecesidad = 0, indiceJuicio = 0;		// Índices para recorrer las listas.
 		while(docRecuperados.hasNextLine()){	// Se recorre todo el fichero.
-			necesidad = docRecuperados.next();	// Se leen las variables del fichero.
-			docId = docRecuperados.next();
-			if(primero){
-				necAnterior = necesidad; primero = false;
+			// Se leen las variables del fichero.
+			necesidad = docRecuperados.next();		// Se lee la necesidad.
+			docId = docRecuperados.next();		// Se lee el id del documento.
+			if(primero){		// Si es el primero, se inicializan las variables.
+				System.out.println("Realizando evaluación de la necesidad " + necesidad);
+				necAnterior = necesidad;
+				primero = false;
+				// Se obtiene el map de documentos y juicios de la necesidad.
 				Map <String, Integer> recallDoc = juicios.get(necesidades.get(indiceNecesidad));
+				// Se obtienen el total de documentos relevantes para la necesidad.
 				totalRelevante = obtenerRelevantes(recallDoc,indiceJuicio);
+				// Actualiza el índice de juicios para colocarlo en la siguiente necesidad.
 				indiceJuicio += recallDoc.size();
-				indiceNecesidad++;
+				indiceNecesidad++;	// Actualiza el índice de la necesidad.
+				// Crea el array para la curva precision-recall.
 				precisionRecall = new ArrayList<Par>(recallDoc.size());
 			}
 			if(!necAnterior.equals(necesidad)){	// Comprueba si se ha terminado la primera necesidad.
 				// Calcular medidas.
 				calcularMedidas(relevante, total, totalRelevante, precisionRecall, 
 						precision10, precisionProm, necAnterior);
-				necAnterior = necesidad;
-				relevante = 0; total = 0; precisionProm = 0.0;
+				necAnterior = necesidad;	// Actualiza las variables.
+				System.out.println("Realizando evaluación de la necesidad " + necesidad);
+				relevante = 0; total = 0; precisionProm = 0.0; precision10 = 0.0;
+				// Obtiene el map documento-relevancia de la siguiente necesidad.
 				Map <String, Integer> recallDoc = juicios.get(necesidades.get(indiceNecesidad));
-				indiceNecesidad++;
+				indiceNecesidad++;		// Actualiza el índice de la necesidad.
+				// Obtiene el número de documentos relevantes para la necesidad.
 				totalRelevante = obtenerRelevantes(recallDoc,indiceJuicio);
+				// Actualiza el índice de juicios para colocarlo en la siguiente necesidad.
 				indiceJuicio += recallDoc.size();
+				// Crea el array para la curva precision-recall.
 				precisionRecall = new ArrayList<Par>(recallDoc.size());
 			}
-			try{
-				// Acumular
-				String identificador = docId.substring(docId.lastIndexOf("/")+1,
-						docId.length());
-				int rele = juicios.get(necesidad).get(identificador);
-				relevante = relevante + rele;
-				total++;
-				if(rele == 1){	// El documento es relevante.
-					precisionProm = precisionProm + relevante/total;
-					precisionRecall.add(new Par(relevante/total,
-							relevante/totalRelevante));
-				}
-				if(total==10){	// Se comprueba para el precision10.
-					precision10 = relevante/total;
-				}
-			} catch(Exception e){System.out.println(e.getMessage());}
-			docRecuperados.nextLine();
+			// Acumula las medidas.
+			int rele = juicios.get(necesidad).get(docId);	// Obtiene si es relevante el documento.
+			relevante = relevante + rele;	// Actualiza el número de relevantes.
+			total++;		// Actualiza el número de documentos leídos.
+			if(rele == 1){	// Si el documento es relevante...
+				// Se calcula la precisión promedio.
+				precisionProm = precisionProm + relevante/total;
+				// Se añade a la curva precisión-recall.
+				precisionRecall.add(new Par(relevante/total,
+						relevante/totalRelevante));
+			}
+			if(total==10){	// Se comprueba si van 10 leídos para el precision10.
+				precision10 = relevante/total;
+			}
+			docRecuperados.nextLine();		// Se pasa a la siguiente línea.
 		}
-		// Calcular medidas para el último.
+		// Calcular medidas para el último leído.
 		calcularMedidas(relevante, total, totalRelevante, precisionRecall, 
 				precision10, precisionProm, necesidad);
 	}
@@ -177,16 +195,11 @@ public class Evaluation {
 	 */
 	private static int obtenerRelevantes(Map<String, Integer> relDoc, int inicial){
 		
-		int total = 0;
-		System.out.println("hola"+inicial);
+		int total = 0;		// Variable para calcular el total.
 		for(int i=inicial; i<=relDoc.size()+inicial-1; i++){
-			System.out.println(i);
-			//System.out.println(relDoc.size());
-			//System.out.println(relDoc);
-			//System.out.println(ficherosJuicios.get(i));
+			// Se obtiene si el documento es relevante o no.
 			total = total + relDoc.get(ficherosJuicios.get(i));
 		}
-		System.out.println("Total relevantes: " + total);
 		return total;
 	}
 	
@@ -208,12 +221,11 @@ public class Evaluation {
 		resultados.printf("precision\t%1.3f%n", precision);
 		resultados.printf("recall\t%1.3f%n", recall);
 		resultados.printf("F1\t%1.3f%n", f1);
-		precision10 = relevante/total;
-		medidas.setPrecision10(medidas.getPrecision10()+precision10);
-		if(total<10){		// Si se han recuperado menos de 10 relevantes...
+		if(precision10==0){		// Si se han recuperado menos de 10 relevantes...
 			resultados.printf("prec@10\t%1.3f%n", relevante/10);
 		} else{
 			resultados.printf("prec@10\t%1.3f%n", precision10);
+			medidas.setPrecision10(medidas.getPrecision10()+precision10);
 		}
 		if(total==0){	// Si la consulta no devuelve ningún resultado...
 			resultados.printf("average_precision\t0", precisionProm);
@@ -230,8 +242,9 @@ public class Evaluation {
 	 */
 	private static void precRecall(ArrayList<Par> datos){
 		
+		// Indica el título de precision-recall.
 		resultados.println("recall_precision");
-		for(int i=0; i<datos.size(); i++){
+		for(int i=0; i<datos.size(); i++){	// Recorre los datos guardados y los va escribiendo.
 			resultados.printf("%1.3f\t%1.3f%n",datos.get(i).getRecall(),
 					datos.get(i).getPrecision());
 		}
@@ -242,25 +255,39 @@ public class Evaluation {
 	 */
 	private static void precRecallInterp(ArrayList<Par> datos){
 		
+		// Crea el array para los puntos interpolados.
 		ArrayList<Double> interpoladas = new ArrayList<Double> (11);
-		resultados.println("interpolated_recall_precision");
-		int indice = 0;
-		for(int i=0; i<11 && indice<datos.size(); i++){
+		resultados.println("interpolated_recall_precision");	// Escribe el título.
+		for(int i=0; i<11; i++){
 			double punto = (double)(i);
-			punto = punto/10;
-			double precision = datos.get(indice).getPrecision();
-			double recall = datos.get(indice).getRecall();
-			for(int j=indice; j<datos.size(); j++){
-				if(datos.get(j).getPrecision() > precision){
-					precision = datos.get(j).getPrecision();
+			punto = punto/10;	// Obtenemos el punto en el rango [0-1]
+			boolean terminado = false;
+			int recallSuperior = -1;
+			// Recorremos los datos para encontrar el primer recall mayor al punto.
+			for(int j=0; !terminado && j<datos.size(); j++){
+				if(datos.get(j).getRecall() > punto){ // Si es el mayor lo guardamos.
+					recallSuperior = j;
+					terminado = true;		// Booleano para salir del bucle.
 				}
 			}
-			interpoladas.add(precision);
-			resultados.printf("%1.3f\t%1.3f%n", punto, precision);
-			if(punto+0.1>recall){indice++;}
+			if(recallSuperior != -1){		// Si se ha encontrado alguna mayor...
+				double maxPrecision = 0.0;	// Se calcula la mayor precisión a su izquierda...
+				for(int j=recallSuperior; j<datos.size(); j++){
+					if(datos.get(j).getPrecision() > maxPrecision){
+						// Si es mayor se guarda.
+						maxPrecision = datos.get(j).getPrecision();
+					}
+				}
+				interpoladas.add(maxPrecision);	// Se añade a los datos interpolados.
+				// Se escribe por pantalla el resultado.
+				resultados.printf("%1.3f\t%1.3f%n", punto, maxPrecision);
+			} else{	// Si no hay ningún recall mayor que el punto, la precisión es 0.
+				interpoladas.add(0.0);
+				resultados.printf("%1.3f\t%1.3f%n", punto, 0.0);
+			}
 		}
-		resultados.println();
-		medidas.setPrecRecInter(interpoladas);
+		resultados.println();	// Se escribe un salto de línea.
+		medidas.setPrecRecInter(interpoladas); // Se añaden los datos a las medidas globales.
 	}
 	
 	/*
@@ -268,22 +295,29 @@ public class Evaluation {
 	 */
 	private static void medidasGlobales(){
 		
-		resultados.println("TOTAL");
+		System.out.println("Calculando medidas globales...");
+		resultados.println("TOTAL");	// Indicamos que son las medidas totales.
+		// Escribimos la precisión media de las consultas.
 		resultados.printf("precision\t%1.3f%n", medidas.getPrecision()/medidas.getTotalConsultas());
+		// Escribimos el recall medio de las consultas.
 		resultados.printf("recall\t%1.3f%n", medidas.getRecall()/medidas.getTotalConsultas());
+		// Calculamos y escribimos el f1-score medio de las consultas.
 		double f1 = (2*(medidas.getPrecision()/medidas.getTotalConsultas())*
 				(medidas.getRecall()/medidas.getTotalConsultas()))/
 				(medidas.getPrecision()/medidas.getTotalConsultas()+medidas.getRecall()/medidas.getTotalConsultas());
 		resultados.printf("F1\t%1.3f%n", f1);
+		// Escribimos el prec10 medio de las consultas.
 		resultados.printf("prec@10\t%1.3f%n", medidas.getPrecision10()/medidas.getTotalConsultas());
+		// Escribimos el MAP medio de las consultas.
 		resultados.printf("MAP\t%1.3f%n", medidas.getPrecisionProm()/medidas.getTotalConsultas());
+		// Obtenemos el valor de la curva precisión-recall interpolada.
 		ArrayList<Double> interpolada = medidas.getPrecRecInter();
 		resultados.println("interpolated_recall_precision");
 		double indice;
-		int numInterpoladas = medidas.getNumInterpoladas();
-		for(int i=0; i<11; i++){
+		for(int i=0; i<11; i++){	// Recorremos la curva y escribimos los valores.
 			indice = (double)(i);
 			resultados.printf("%1.3f\t%1.3f%n", indice/10, interpolada.get(i)/medidas.getTotalConsultas());
 		}
+		System.out.println("Evaluación finalizada.");
 	}
 }
