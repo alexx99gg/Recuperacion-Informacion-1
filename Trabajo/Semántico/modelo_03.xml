@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+xml:base="http://example.org/schemas/trabajos">
+
+	<rdfs:Class rdf:ID="Persona"/>
+
+	<rdf:Description rdf:ID="autor">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="#Persona"/>
+	</rdf:Description>
+
+	<rdfs:Class rdf:ID="Trabajo"/>
+
+	<rdf:Description rdf:ID="identificador">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:ID="descripcion">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:ID="titulo">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:ID="organizacion">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:ID="fecha">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+	</rdf:Description>
+
+	<rdf:Description rdf:ID="temas">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	</rdf:Description>
+
+</rdf:RDF>
