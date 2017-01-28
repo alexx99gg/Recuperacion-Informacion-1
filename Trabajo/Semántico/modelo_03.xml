@@ -6,46 +6,69 @@ xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 xml:base="http://example.org/schemas/trabajos">
 
 	<rdfs:Class rdf:ID="Persona"/>
+	
+	<rdf:Description rdf:ID="nombrePer">
+		<rdfs:comment>Propiedad de una persona que representa su nombre y apellidos.</rdfs:comment>
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Persona"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+	</rdf:Description>
 
 	<rdf:Description rdf:ID="autor">
+		<rdfs:comment>Propiedad que representa el autor de un trabajo y adquiere valores de personas.</rdfs:comment>
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:domain rdf:resource="#Trabajo"/>
 		<rdfs:range rdf:resource="#Persona"/>
 	</rdf:Description>
 
+	<rdfs:Class rdf:ID="Organizacion"/>
+	
+	<rdf:Description rdf:ID="nombreOrg">
+		<rdfs:comment>Propiedad de una organización que representa su nombre.</rdfs:comment>
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Organizacion"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+	</rdf:Description>
+	
+	<rdf:Description rdf:ID="organizacion">
+		<rdfs:comment>Propiedad de un trabajo que representa a la organización que lo ha publicado.</rdfs:comment>
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="#Trabajo"/>
+		<rdfs:range rdf:resource="#Organizacion"/>
+	</rdf:Description>
+
 	<rdfs:Class rdf:ID="Trabajo"/>
 
 	<rdf:Description rdf:ID="identificador">
+		<rdfs:comment>Propiedad que representa el identificador de un trabajo.</rdfs:comment>
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:domain rdf:resource="#Trabajo"/>
 		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
 	</rdf:Description>
 
 	<rdf:Description rdf:ID="descripcion">
+		<rdfs:comment>Propiedad que representa la descripción de un trabajo.</rdfs:comment>
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:domain rdf:resource="#Trabajo"/>
 		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
 	</rdf:Description>
 
 	<rdf:Description rdf:ID="titulo">
-		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-		<rdfs:domain rdf:resource="#Trabajo"/>
-		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
-	</rdf:Description>
-
-	<rdf:Description rdf:ID="organizacion">
+		<rdfs:comment>Propiedad que representa el título de un trabajo.</rdfs:comment>
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:domain rdf:resource="#Trabajo"/>
 		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
 	</rdf:Description>
 
 	<rdf:Description rdf:ID="fecha">
+		<rdfs:comment>Propiedad que representa la fecha de publicación de un trabajo.</rdfs:comment>
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:domain rdf:resource="#Trabajo"/>
 		<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
 	</rdf:Description>
 
 	<rdf:Description rdf:ID="temas">
+		<rdfs:comment>Propiedad que representa los temas sobre los que trata un trabajo.</rdfs:comment>
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:domain rdf:resource="#Trabajo"/>
 		<rdfs:range rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
