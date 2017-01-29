@@ -129,12 +129,12 @@ public class XMLParser {
 	        if(idiomas.isEmpty()){	// Miramos si no tenía idioma.
 	        	idiomas.add("español");
 	        }
+	        etiq.add(new Etiqueta("Identificadores", identificadores));
 	        etiq.add(new Etiqueta("Autores", autores));
+	        etiq.add(new Etiqueta("Publicadores", publicadores));
 	        etiq.add(new Etiqueta("Fechas", fechas));
 	        etiq.add(new Etiqueta("Descripciones", descripciones));
-	        etiq.add(new Etiqueta("Identificadores", identificadores));
-	        etiq.add(new Etiqueta("Idiomas", idiomas));
-	        etiq.add(new Etiqueta("Publicadores", publicadores));
+	        etiq.add(new Etiqueta("Idiomas", idiomas));	        
 	        etiq.add(new Etiqueta("Titulos", titulos));
 	        return etiq;	// Se devuelve la etiqueta.
 	    } catch (Exception e) {	// Se captura la posible excepción.
