@@ -1,0 +1,109 @@
+<rdf:RDF 
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#geologica">
+		<skos:definition>Relacionado con las rocas y los sedimentos.</skos:definition>
+		<skos:prefLabel xml:lang="es">geologica</skos:prefLabel>
+		<skos:altLabel xml:lang="en">geology</skos:altLabel>
+		<skos:altLabel>minerologica</skos:altLabel>
+		<skos:altLabel>sedimentaria</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#enfermedad">
+		<skos:definition>Alteración más o menos grave de la salud.</skos:definition>
+		<skos:prefLabel xml:lang="es">enfermedad</skos:prefLabel>
+		<skos:altLabel xml:lang="en">illness</skos:altLabel>
+		<skos:altLabel>afección</skos:altLabel>
+		<skos:altLabel>dolencia</skos:altLabel>
+		<skos:altLabel>indisposición</skos:altLabel>
+		<skos:altLabel>dolor</skos:altLabel>
+		<skos:altLabel>trastorno</skos:altLabel>
+		<skos:altLabel>achaque</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#infecciosa">
+		<skos:definition>Que causa infección.</skos:definition>
+		<skos:prefLabel xml:lang="es">infecciosa</skos:prefLabel>
+		<skos:altLabel>contagioso</skos:altLabel>
+		<skos:altLabel>infectado</skos:altLabel>
+		<skos:altLabel>contaminado</skos:altLabel>
+		<skos:altLabel>infección</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#algoritmo">
+		<skos:definition>Conjunto ordenado y finito de operaciones que permite hallar
+			la solución de un problema.</skos:definition>
+		<skos:prefLabel xml:lang="es">algoritmo</skos:prefLabel>
+		<skos:altLabel xml:lang="en">algorithm</skos:altLabel>
+		<skos:altLabel>procedimiento</skos:altLabel>
+		<skos:altLabel>función</skos:altLabel>
+		<skos:altLabel>guarismo</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#geométrica">
+		<skos:definition>Perteneciente o relativo a la geometría.</skos:definition>
+		<skos:prefLabel xml:lang="es">geométrica</skos:prefLabel>
+		<skos:altLabel xml:lang="en">geometric</skos:altLabel>
+		<skos:altLabel>matemático</skos:altLabel>
+		<skos:altLabel>exacto</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#trabajo">
+		<skos:definition>Cosa que es resultado de la actividad humana.</skos:definition>
+		<skos:prefLabel xml:lang="es">trabajo</skos:prefLabel>
+		<skos:altLabel xml:lang="en">work</skos:altLabel>
+		<skos:altLabel>documento</skos:altLabel>
+		<skos:altLabel>proyecto</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#robótica">
+		<skos:definition>Técnica que aplica la informática al diseño y empleo de 
+			aparatos que, en sustitución de personas, realizan operaciones o 
+			trabajos, por lo general en instalaciones industriales.</skos:definition>
+		<skos:prefLabel xml:lang="es">robótica</skos:prefLabel>
+		<skos:altLabel xml:lang="en">robotics</skos:altLabel>
+		<skos:altLabel>robots</skos:altLabel>
+		<skos:altLabel>androide</skos:altLabel>
+		<skos:altLabel>autómata</skos:altLabel>
+		<skos:altLabel>cyborg</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#familia">
+		<skos:definition>Grupo de personas emparentadas entre sí que viven 
+			juntas.</skos:definition>
+		<skos:prefLabel xml:lang="es">familia</skos:prefLabel>
+		<skos:altLabel xml:lang="en">family</skos:altLabel>
+		<skos:altLabel>clan</skos:altLabel>
+		<skos:altLabel>prole</skos:altLabel>
+		<skos:altLabel>linaje</skos:altLabel>
+		<skos:altLabel>conjunto</skos:altLabel>
+		<skos:altLabel>descendiente</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#técnica">
+		<skos:definition>Conjunto de procedimientos y recursos de que se sirve 
+			una ciencia o un arte.</skos:definition>
+		<skos:prefLabel xml:lang="es">técnica</skos:prefLabel>
+		<skos:altLabel xml:lang="en">way</skos:altLabel>
+		<skos:altLabel>método</skos:altLabel>
+		<skos:altLabel>procedimiento</skos:altLabel>
+		<skos:altLabel>sistema</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#inteligencia">
+		<skos:definition>Disciplina científica que se ocupa de crear programas 
+			informáticos que ejecutan operaciones comparables a las que realiza
+			la mente humana, como el aprendizaje o el razonamiento lógico.</skos:definition>
+		<skos:prefLabel xml:lang="es">inteligencia</skos:prefLabel>
+		<skos:altLabel xml:lang="en">intelligence</skos:altLabel>
+		<skos:altLabel>conocimiento</skos:altLabel>
+		<skos:altLabel>razonamiento</skos:altLabel>
+		<skos:altLabel>intelecto</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#videojuego">
+		<skos:definition>Juego electrónico que se visualiza en una pantalla.</skos:definition>
+		<skos:prefLabel xml:lang="es">videojuego</skos:prefLabel>
+		<skos:altLabel xml:lang="en">videogame</skos:altLabel>
+		<skos:altLabel>juego</skos:altLabel>
+	</skos:Concept>
+	<skos:Concept rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#proyecto">
+		<skos:definition>Designio o pensamiento de ejecutar algo.</skos:definition>
+		<skos:prefLabel xml:lang="es">proyecto</skos:prefLabel>
+		<skos:altLabel xml:lang="en">project</skos:altLabel>
+		<skos:altLabel>documento</skos:altLabel>
+		<skos:altLabel>trabajo</skos:altLabel>
+	</skos:Concept>
+
+</rdf:RDF>
