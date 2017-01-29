@@ -99,7 +99,7 @@ public class SemanticGenerator {
         			.addLiteral(nombrePer, contenido.get(k));
         		model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
         				.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
-        					.addProperty(autor, contenido.get(k));
+        					.addProperty(autor, prefijo + contenido.get(k));
         	}
         	
         	contenido = etiq.get(PUBLICADOR).getContenido();
@@ -108,7 +108,7 @@ public class SemanticGenerator {
     			.addLiteral(nombreOrg, contenido.get(0));
     		model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
     				.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
-						.addProperty(organizacion, contenido.get(0));
+						.addProperty(organizacion, prefijo + contenido.get(0));
         	
         	contenido = etiq.get(FECHA).getContenido();
         	/*
@@ -135,8 +135,8 @@ public class SemanticGenerator {
 						.addLiteral(titulo, contenido.get(0));
 			
 		}
-		model.write(System.out);
-		ResIterator iter = model.listSubjectsWithProperty(autor,"Pedro");
+		//model.write(System.out);
+		ResIterator iter = model.listResourcesWithProperty(autor, "Pedro");
 		while (iter.hasNext()) {
 		    Resource r = iter.nextResource();
 		    System.out.println(r);
