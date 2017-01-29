@@ -1,5 +1,3 @@
-package trabajo;
-
 
 import java.io.FileInputStream;
 import java.util.ArrayList;

@@ -1,6 +1,7 @@
-package trabajo;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -26,11 +27,12 @@ public class SemanticGenerator {
 		
 		args = new String[6];
 		
+		args[1] = "grafo.rdf";
 		args[5] = "recordsdc";
 		
 		//comprobarArgumentos(args);	// Se comprueban los argumentos.
 		
-		obtenerEtiquetas(args[5]);		// Se obtienen las etiquetas de los documentos.
+		obtenerEtiquetas(args[5], args[1]);		// Se obtienen las etiquetas de los documentos.
 	}
 	
 	/*
@@ -53,7 +55,7 @@ public class SemanticGenerator {
 	/*
 	 * Método que obtiene las etiquetas de los documentos.
 	 */
-	private static void obtenerEtiquetas(String direc){
+	private static void obtenerEtiquetas(String direc, String salida){
 		
 		File directorio = new File(direc);	// Se crea el objeto con el directorio.
 		
@@ -76,14 +78,12 @@ public class SemanticGenerator {
 		 * FALTA TEMAS QUE VA CON EL SKOS
 		 */
 
-		for(int i=0; i<199/*files.length*/; i++){		// Se recorre la lista...
+		for(int i=0; i<files.length; i++){		// Se recorre la lista...
 			
 			File fichero = new File(directorio,files[i]);
 			XMLParser p = new XMLParser(fichero.getPath());		// Se crea el parser.
 
-			ArrayList<Etiqueta> etiq = p.parserDocs();		// Se obtiene el contenido.
-			
-
+			ArrayList<Etiqueta> etiq = p.parserDocs();		// Se obtienen las etiquetas.
 
 			ArrayList<String> contenido = etiq.get(IDENTIFICADOR).getContenido();
         	// Se crea el recurso para el trabajo.
@@ -142,5 +142,10 @@ public class SemanticGenerator {
 		    System.out.println(r);
 		}
 		
+		try {		// Se guarda en un fichero el rdf.
+			model.write(new FileOutputStream(new File(salida)));
+		} catch (FileNotFoundException e) {		// Se muestra el posible error.
+			System.err.println("Error al escribir el rdf.");
+		}
 	}
 }
