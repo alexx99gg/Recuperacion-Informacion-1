@@ -1,41 +1,59 @@
-package trabajo;
+import java.io.File;
 
-import java.util.ArrayList;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-
+/**
+ * Clase que realiza las consultas en SPARQL sobre
+ * el modelo RDF pasado como parámetro.
+ */
 public class SemanticSearcher {
-	
-	private static Model model;
 
-	public static void main(String[] args) {
-		crearGrafoSkos();
-		model.write(System.out);
+	/*
+	 * Método principal que lanza toda la ejecución.
+	 */
+	public static void main(String[] args){
+		
+		args = new String[8];
+		args[0] = "-rdf";
+		args[1] = "grafo.rdf";
+		args[2] = "-rdfs";
+		args[3] = "";
+		args[4] = "-infoNeeds";
+		args[5] = "recordsdc";
+		args[6] = "-output";
+		args[7] = "salida.txt";
+		
+		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
+			
+		}
+		
 	}
 	
 	/*
-	 * Crea un grafo RDF a partir de un vocabulario de conceptos SKOS.
+	 * Método que comprueba los argumentos con los que es llamado el
+	 * programa.
 	 */
-	public static void crearGrafoSkos() {
-		XMLParser parser = new XMLParser("data.skos");
-		ArrayList<SkosEtiq> etiquetas = parser.parserSkos();		//Obtiene eiquetas del fichero.
-		model =  ModelFactory.createDefaultModel();
-		String skos = "http://trabajos_skos.com/skos#";
-		//Se crean las propiedades altLabel y prefLabel.
-		Property prefLabel = model.createProperty(skos + "prefLabel");
-		Property altLabel = model.createProperty(skos + "altLabel");
-		for(int i = 0; i< etiquetas.size(); i++) {
-			//Se crea el recurso.
-			Resource concepto = model.createResource(skos + etiquetas.get(i).getPrefLabel());
-			//Se añaden las propiedades altLabel y prefLabel.
-			concepto.addProperty(prefLabel,etiquetas.get(i).getPrefLabel());	
-			ArrayList<String> alternativas = etiquetas.get(i).getAltLabel();
-			for(int j = 0; j < alternativas.size(); j++) {
-				concepto.addProperty(altLabel,alternativas.get(j));
-			}
+	private static boolean comprobarArgumentos(String [] args){
+		
+		if(args.length != 8 || !args[0].equals("-rdf") || !args[2].equals("-rdfs")
+				|| !args[4].equals("-infoNeeds") || !args[6].equals("-output")){		// Se comprueban parámetros.
+			System.err.println("Usar: java SemanticGenerator -rdf <rdfPath> "
+					+ "-skos <skosPath> -docs <docsPath>");
+			return false;
 		}
+		File fileRDFS = new File(args[3]);			// Se mira fichero de rdfs.
+		if(!fileRDFS.isFile() || !fileRDFS.canRead()){
+			System.err.println("El archivo de rdfs no existe o no se puede leer.");
+			return false;
+		}
+		File fileRDF = new File(args[1]);			// Se mira fichero de rdf.
+		if(!fileRDF.isFile() || !fileRDF.canRead()){
+			System.err.println("El archivo de rdf no existe o no se puede leer.");
+			return false;
+		}
+		File fileNeeds = new File(args[5]);			// Se mira fichero de necesidades.
+		if(!fileNeeds.isFile() || !fileNeeds.canRead()){
+			System.err.println("El archivo de consultas no existe o no se puede leer.");
+			return false;
+		}
+		return true;
 	}
 }
