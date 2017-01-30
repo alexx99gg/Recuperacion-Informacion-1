@@ -4,11 +4,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
+import com.hp.hpl.jena.rdf.model.InfModel;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.reasoner.Reasoner;
+import com.hp.hpl.jena.reasoner.ReasonerRegistry;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 
 /**
@@ -19,6 +23,7 @@ public class SemanticGenerator {
 	
 	private static final int IDENTIFICADOR = 0, AUTOR = 1, PUBLICADOR = 2, FECHA = 3, DESCRIPCION = 4,
 			IDIOMA = 5, TITULO = 6;
+	private static Model model;
 
 	/*
 	 * Método principal que lanza toda la ejecución.
@@ -35,9 +40,9 @@ public class SemanticGenerator {
 		
 		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
 			
-			//obtenerDocs(args[5], args[1]);		// Se obtienen los documentos.
+			obtenerDocs(args[5]);		// Se obtienen los documentos.
 			
-			obtenerSkos(args[3]);		// Se obtene el skos.
+			obtenerSkos(args[3], args[1]);		// Se obtene el skos.
 			
 		}
 		
@@ -71,14 +76,14 @@ public class SemanticGenerator {
 	/*
 	 * Método que obtiene las etiquetas de los documentos.
 	 */
-	private static void obtenerDocs(String direc, String salida){
+	private static void obtenerDocs(String direc){
 		
 		File directorio = new File(direc);	// Se crea el objeto con el directorio.
 		
 		String[] files = directorio.list();	// Se obtiene la lista de ficheros.
 		
 		// Se crea un modelo vacío.
-        Model model = ModelFactory.createDefaultModel();
+        model = ModelFactory.createDefaultModel();
         // Se crean las distintas propiedades.
         String prefijo = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
      	Property nombreOrg = model.createProperty(prefijo + "nombreOrg");
@@ -151,31 +156,44 @@ public class SemanticGenerator {
 						.addLiteral(titulo, contenido.get(0));
 			
 		}
-		//model.write(System.out);
-		ResIterator iter = model.listResourcesWithProperty(autor, "Pedro");
-		while (iter.hasNext()) {
-		    Resource r = iter.nextResource();
-		    System.out.println(r);
-		}
 		
-		try {		// Se guarda en un fichero el rdf.
-			model.write(new FileOutputStream(new File(salida)));
-		} catch (FileNotFoundException e) {		// Se muestra el posible error.
-			System.err.println("Error al escribir el rdf.");
-		}
 	}
 	
 	/*
 	 * Método que obtiene el modelo terminológico del fichero y lo añade
 	 * al sistema.
 	 */
-	private static void obtenerSkos(String fich){
+	private static void obtenerSkos(String fich, String salida){
 		
-		File fichero = new File(fich);	// Se crea el objeto con el fichero.
+		File fichero = new File(fich);	// Se crea el objeto con el fichero.	
+		XMLParser parser = new XMLParser(fichero.getPath());	// Se crea el parser
 		
-		XMLParser p = new XMLParser(fichero.getPath());	// Se crea el parser.
-		p.parserSkos();
+		ArrayList<SkosEtiq> etiquetas = parser.parserSkos();		// Obtiene eiquetas del fichero.
+
+		String skos = "http://trabajos_skos.com/skos#";	// Prefijo del skos.
+		// Se crean las propiedades altLabel y prefLabel.
+		Property prefLabel = model.createProperty(skos + "prefLabel");
+		Property altLabel = model.createProperty(skos + "altLabel");
 		
+		for(int i = 0; i< etiquetas.size(); i++) {		// Se recorren las etiquetas.
+			// Se crea el recurso.
+			Resource concepto = model.createResource(skos + etiquetas.get(i).getPrefLabel());
+			// Se añaden las propiedades altLabel y prefLabel.
+			concepto.addProperty(prefLabel,etiquetas.get(i).getPrefLabel());	
+			ArrayList<String> alternativas = etiquetas.get(i).getAltLabel();
+			
+			for(int j = 0; j < alternativas.size(); j++) {
+				concepto.addProperty(altLabel,alternativas.get(j));
+			}
+		}
+        
+        model.write(System.out);
+        
+		try {		// Se guarda en un fichero el rdf.
+			model.write(new FileOutputStream(new File(salida)));
+		} catch (FileNotFoundException e) {		// Se muestra el posible error.
+			System.err.println("Error al escribir el rdf.");
+		}
 	}
 	
 	
