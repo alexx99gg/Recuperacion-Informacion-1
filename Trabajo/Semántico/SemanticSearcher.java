@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -26,9 +28,13 @@ public class SemanticSearcher {
 			
 			ArrayList<Consulta> consultas = ConsultaParser.obtenerConsulta(new File(args[5]));
 			for(int i=0; i<consultas.size(); i++){
-				System.out.println(consultas.get(i).getIdentificador());
-				System.out.println(consultas.get(i).getConsulta());
+				
+				// Escribir resultados en fichero salida.
+				/*PrintWriter ficheroSal = new PrintWriter(new FileWriter(args[7]));
+				ficheroSal.printf(identificador + "\t" + doc.get("path"));*/
 			}
+			
+			
 		}
 		
 	}
