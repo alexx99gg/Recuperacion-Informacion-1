@@ -1,4 +1,4 @@
-01-1 SELECT
+01-1 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT ?x WHERE { ?x rdf:titulo ?titulo filter regex(?titulo,"Geología")}
 04-3 SELECT
 05-1 SELECT
 09-4 SELECT

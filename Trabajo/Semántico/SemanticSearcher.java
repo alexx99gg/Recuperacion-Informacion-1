@@ -1,7 +1,18 @@
+package trabajo;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
+
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.util.FileManager;
 
 /**
  * Clase que realiza las consultas en SPARQL sobre
@@ -25,10 +36,24 @@ public class SemanticSearcher {
 		args[7] = "salida.txt";
 		
 		if(true/*comprobarArgumentos(args)*/){ // Se comprueban los argumentos.
-			
+			//Obtenemos el modelo del fichero.
+			FileManager.get().addLocatorClassLoader(SemanticSearcher.class.getClassLoader());
+			Model model = FileManager.get().loadModel(args[1]);
+			//Se obtiene la consulta.
 			ArrayList<Consulta> consultas = ConsultaParser.obtenerConsulta(new File(args[5]));
-			for(int i=0; i<consultas.size(); i++){
-				
+			for(int i=0; i<1; i++){
+				Query query = QueryFactory.create(consultas.get(i).getConsulta());
+				//Se ejecuta la consulta sobre el modelo.
+				QueryExecution qexec = QueryExecutionFactory.create(query,model);
+				ResultSet resultados = qexec.execSelect();
+				if(resultados != null) {
+					//Si hay resultados se muestran.
+					while(resultados.hasNext()) {
+						QuerySolution sol = resultados.next();
+						Resource nombre = sol.getResource("x");
+						System.out.println(nombre.getURI());
+					}
+				}
 				// Escribir resultados en fichero salida.
 				/*PrintWriter ficheroSal = new PrintWriter(new FileWriter(args[7]));
 				ficheroSal.printf(identificador + "\t" + doc.get("path"));*/
