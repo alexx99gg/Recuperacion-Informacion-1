@@ -6,6 +6,7 @@ import javax.xml.parsers.*;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -200,4 +201,59 @@ public class XMLParser {
 		return idioma;
 	}
 	
+	/*
+	 * Método que realiza el parser XML del SKOS.
+	 */
+	public ArrayList<SkosEtiq> parserSkos() {
+		
+		// Crea el factory para parsear el documento.
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		
+		// Lista con las etiquetas skos..
+		ArrayList<SkosEtiq> etiquetas = new ArrayList<SkosEtiq>();
+		try {
+			// Crea el objeto que hará el parser del XML.
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			
+			// Crea el nuevo documento.
+			InputSource is = new InputSource(fis);
+			// Realizamos el parser.
+			Document doc = builder.parse(is);
+			// Normalizamos.
+			doc.getDocumentElement().normalize();
+			
+			// Obtenemos una lista con los elementos según la etiqueta.
+			NodeList nodes = doc.getElementsByTagName("skos:Concept");
+			
+			// Recorremos todos los nodos hijos.
+			int i = 0;		// Indice para el recorrido.
+			boolean finalizado = false;	// Booleano para terminar.
+			while(!finalizado) {	// Recorremos los nodos.
+				// Obtenemos el nodo.
+				Node nNode = nodes.item(i);
+				Element elemento = (Element) nNode;
+				
+				// Sacamos etiquetas.
+				String prefLabel = elemento.getElementsByTagName("skos:prefLabel").
+						item(0).getTextContent();
+				SkosEtiq etiqueta = new SkosEtiq(prefLabel);	// Se crea la etiqueta.
+				NodeList altLabel = elemento.getElementsByTagName("skos:altLabel");
+				for(int j=0; j<altLabel.getLength(); j++){
+					String label = altLabel.item(j).getTextContent();
+					etiqueta.anadirAltLabel(label);
+				}
+
+				etiquetas.add(etiqueta);		// Añadimos la etiqueta.
+				i = i + 1;		// Actualizamos el índice.
+				if(i == nodes.getLength()){	// Miramos si se ha terminado.
+					finalizado = true;
+				}
+			}
+
+			return etiquetas;	// Se devuelve las consultas.
+		} catch (Exception e) {	// Se captura la posible excepción.
+			System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());
+		}
+		return etiquetas;
+	}
 }

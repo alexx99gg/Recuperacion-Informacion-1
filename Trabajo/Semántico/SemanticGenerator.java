@@ -26,36 +26,52 @@ public class SemanticGenerator {
 	public static void main(String[] args){
 		
 		args = new String[6];
-		
+		args[0] = "-rdf";
 		args[1] = "grafo.rdf";
+		args[2] = "-skos";
+		args[3] = "data.skos";
+		args[4] = "-docs";
 		args[5] = "recordsdc";
 		
-		//comprobarArgumentos(args);	// Se comprueban los argumentos.
+		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
+			
+			//obtenerDocs(args[5], args[1]);		// Se obtienen los documentos.
+			
+			obtenerSkos(args[3]);		// Se obtene el skos.
+			
+		}
 		
-		obtenerEtiquetas(args[5], args[1]);		// Se obtienen las etiquetas de los documentos.
 	}
 	
 	/*
 	 * Método que comprueba los argumentos con los que es llamado el
 	 * programa.
 	 */
-	private static void comprobarArgumentos(String [] args){
+	private static boolean comprobarArgumentos(String [] args){
 		
 		if(args.length != 6 || !args[0].equals("-rdf") || !args[2].equals("-skos")
-				|| !args[4].equals("-docs")){
+				|| !args[4].equals("-docs")){		// Se comprueban parámetros.
 			System.err.println("Usar: java SemanticGenerator -rdf <rdfPath> "
 					+ "-skos <skosPath> -docs <docsPath>");
+			return false;
 		}
-		File directorio = new File(args[5]);
-		if(!directorio.isDirectory() || !directorio.canRead()){
-			System.err.println("El directorio no existe o no se puede leer.");
+		File dirDocs = new File(args[5]);		// Se mira el directorio de documentos.
+		if(!dirDocs.isDirectory() || !dirDocs.canRead()){
+			System.err.println("El directorio de documentos no existe o no se puede leer.");
+			return false;
 		}
+		File fileSkos = new File(args[3]);			// Se mira fichero de skos.
+		if(!fileSkos.isFile() || !fileSkos.canRead()){
+			System.err.println("El archivo de skos no existe o no se puede leer.");
+			return false;
+		}
+		return true;
 	}
 	
 	/*
 	 * Método que obtiene las etiquetas de los documentos.
 	 */
-	private static void obtenerEtiquetas(String direc, String salida){
+	private static void obtenerDocs(String direc, String salida){
 		
 		File directorio = new File(direc);	// Se crea el objeto con el directorio.
 		
@@ -148,4 +164,19 @@ public class SemanticGenerator {
 			System.err.println("Error al escribir el rdf.");
 		}
 	}
+	
+	/*
+	 * Método que obtiene el modelo terminológico del fichero y lo añade
+	 * al sistema.
+	 */
+	private static void obtenerSkos(String fich){
+		
+		File fichero = new File(fich);	// Se crea el objeto con el fichero.
+		
+		XMLParser p = new XMLParser(fichero.getPath());	// Se crea el parser.
+		p.parserSkos();
+		
+	}
+	
+	
 }
