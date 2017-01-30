@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Clase que realiza las consultas en SPARQL sobre
@@ -17,12 +18,17 @@ public class SemanticSearcher {
 		args[2] = "-rdfs";
 		args[3] = "";
 		args[4] = "-infoNeeds";
-		args[5] = "recordsdc";
+		args[5] = "necesidades.txt";
 		args[6] = "-output";
 		args[7] = "salida.txt";
 		
-		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
+		if(true/*comprobarArgumentos(args)*/){ // Se comprueban los argumentos.
 			
+			ArrayList<Consulta> consultas = ConsultaParser.obtenerConsulta(new File(args[5]));
+			for(int i=0; i<consultas.size(); i++){
+				System.out.println(consultas.get(i).getIdentificador());
+				System.out.println(consultas.get(i).getConsulta());
+			}
 		}
 		
 	}
