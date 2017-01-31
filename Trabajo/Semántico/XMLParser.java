@@ -187,7 +187,6 @@ public class XMLParser {
 				try{
 					Integer.parseInt(palabra);
 					if(palabra.length()==4){
-						System.out.println(palabra);
 						fechas.add(palabra);
 					}
 				} catch(NumberFormatException e){}
