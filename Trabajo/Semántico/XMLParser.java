@@ -1,6 +1,7 @@
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.xml.parsers.*;
 
@@ -94,6 +95,8 @@ public class XMLParser {
 	        			if(!descripciones.contains(contenido)){
 	        				descripciones.add(contenido);
 	        			}
+	        			// Añade las posibles fechas en el campo description.
+	        			fechas = anadirFecha(contenido, fechas);
 	        			break;
 	        		case "identifier":
 	        			if(!identificadores.contains(contenido)){
@@ -115,6 +118,8 @@ public class XMLParser {
 	        			if(!titulos.contains(contenido)){
 	        				titulos.add(contenido);
 	        			}
+	        			// Añade las posibles fechas en el campo title.
+	        			fechas = anadirFecha(contenido, fechas);
 	        			break;
 	        		default:
 	        			break;
@@ -165,6 +170,31 @@ public class XMLParser {
 			}
 		}
 		return false;
+	}
+	
+	/*
+	 * Método que indexa las fechas contenidas en el campo title o
+	 * description para poder realizar consultas de rangos.
+	 */
+	private static ArrayList<String> anadirFecha(String texto, ArrayList<String> fechas){
+		
+		texto = texto.trim();
+		Scanner palabras = new Scanner(texto);
+		palabras.useDelimiter(" |,|\\(|-|\\)|\\n|–");
+		while(palabras.hasNext()){
+			String palabra = palabras.next();
+			if(palabra.length()>0){
+				try{
+					Integer.parseInt(palabra);
+					if(palabra.length()==4){
+						System.out.println(palabra);
+						fechas.add(palabra);
+					}
+				} catch(NumberFormatException e){}
+			}
+		}
+		palabras.close();
+		return fechas;
 	}
 	
 	/*

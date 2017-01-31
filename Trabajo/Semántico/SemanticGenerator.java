@@ -3,7 +3,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -108,8 +109,8 @@ public class SemanticGenerator {
 				.addLiteral(identificador, 
 						contenido.get(etiq.get(IDENTIFICADOR).getContenido().size()-1));
         	
+        	// Se crean los recursos para los autores.
 			contenido = etiq.get(AUTOR).getContenido();
-			// Se crean los recursos para los autores.
         	for(int k=0; k<contenido.size(); k++){
         		model.createResource(prefijo + contenido.get(k))
         			.addLiteral(nombrePer, contenido.get(k));
@@ -118,6 +119,7 @@ public class SemanticGenerator {
         					.addProperty(autor, prefijo + contenido.get(k));
         	}
         	
+        	// Se crea el publicador.
         	contenido = etiq.get(PUBLICADOR).getContenido();
         	// Se crea el recurso para el publicador.
     		model.createResource(prefijo + contenido.get(0))
@@ -126,25 +128,29 @@ public class SemanticGenerator {
     				.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
 						.addProperty(organizacion, prefijo + contenido.get(0));
         	
-        	contenido = etiq.get(FECHA).getContenido();
-        	/*
-        	 * Hay tipo fijo de fecha pero no se ponerlo.
-        	 */
-        	model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
-        			.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
-        				.addLiteral(fecha, contenido.get(0));
+    		// Se crea la fecha.
+    		contenido = etiq.get(FECHA).getContenido();  		
+    		for(int k=0; k<contenido.size(); k++){
+    			Literal literal = model.createTypedLiteral(contenido.get(k), XSDDatatype.XSDgYear);
+        		// Se inserta la fecha.
+            	model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
+            			.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
+            				.addProperty(fecha, literal);
+    		}
         	
+    		// Se crea la descripción.
         	contenido = etiq.get(DESCRIPCION).getContenido();
         			model.getResource(prefijo + etiq.get(IDENTIFICADOR)
         			.getContenido().get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
     					.addLiteral(descripcion, contenido.get(0));
 
-        	contenido = etiq.get(IDIOMA).getContenido();
         	// Se crea el idioma.
+        	contenido = etiq.get(IDIOMA).getContenido();
         	model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
         			.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
         				.addLiteral(idioma, contenido.get(0));
 
+        	// Se crea el título.
     		contenido = etiq.get(TITULO).getContenido();
         	model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
         			.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
