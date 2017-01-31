@@ -1,6 +1,7 @@
-package trabajo;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.hp.hpl.jena.query.Query;
@@ -9,7 +10,6 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.FileManager;
@@ -29,37 +29,51 @@ public class SemanticSearcher {
 		args[0] = "-rdf";
 		args[1] = "grafo.rdf";
 		args[2] = "-rdfs";
-		args[3] = "";
+		args[3] = "modelo_03.xml";
 		args[4] = "-infoNeeds";
 		args[5] = "necesidades.txt";
 		args[6] = "-output";
 		args[7] = "salida.txt";
+
 		
-		if(true/*comprobarArgumentos(args)*/){ // Se comprueban los argumentos.
-			//Obtenemos el modelo del fichero.
-			FileManager.get().addLocatorClassLoader(SemanticSearcher.class.getClassLoader());
-			Model model = FileManager.get().loadModel(args[1]);
-			//Se obtiene la consulta.
-			ArrayList<Consulta> consultas = ConsultaParser.obtenerConsulta(new File(args[5]));
-			for(int i=0; i<1; i++){
-				Query query = QueryFactory.create(consultas.get(i).getConsulta());
-				//Se ejecuta la consulta sobre el modelo.
-				QueryExecution qexec = QueryExecutionFactory.create(query,model);
-				ResultSet resultados = qexec.execSelect();
-				if(resultados != null) {
-					//Si hay resultados se muestran.
-					while(resultados.hasNext()) {
-						QuerySolution sol = resultados.next();
-						Resource nombre = sol.getResource("x");
-						System.out.println(nombre.getURI());
+		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
+			try{
+				// Se crea el objeto para escribir en el fichero.
+				PrintWriter ficheroSal = new PrintWriter(new FileWriter(args[7]));
+				
+				// Obtenemos el modelo del fichero.
+				FileManager.get().addLocatorClassLoader(SemanticSearcher.class.getClassLoader());
+				Model model = FileManager.get().loadModel(args[1]);
+				
+				// Se obtiene la consulta.
+				ArrayList<Consulta> consultas = ConsultaParser.obtenerConsulta(new File(args[5]));
+				for(int i=0; i<consultas.size(); i++){
+					String identificador = consultas.get(i).getIdentificador();
+					System.out.println("Ejecutando consulta " + identificador);
+					Query query = QueryFactory.create(consultas.get(i).getConsulta());
+					// Se ejecuta la consulta sobre el modelo.
+					QueryExecution qexec = QueryExecutionFactory.create(query,model);
+					ResultSet resultados = qexec.execSelect();
+					if(resultados != null) {
+						// Si hay resultados se muestran.
+						while(resultados.hasNext()) {
+							// Se obtiene el resultado.
+							QuerySolution sol = resultados.next();
+							Resource nombre = sol.getResource("doc");
+							String recurso = nombre.getURI();
+							// Se obtiene su identificador.
+							String docId = recurso.substring(recurso.indexOf(":")+1,recurso.length());
+							docId = docId.substring(docId.indexOf(":")+1,docId.length());
+							// Se escribe en el fichero de salida.
+							ficheroSal.println(identificador + "\t" + docId);
+						}
 					}
-				}
-				// Escribir resultados en fichero salida.
-				/*PrintWriter ficheroSal = new PrintWriter(new FileWriter(args[7]));
-				ficheroSal.printf(identificador + "\t" + doc.get("path"));*/
+				}	
+				ficheroSal.close();	// Se cierra el fichero de salida.
+				System.out.println("Fin de la ejecución.");
+			} catch(Exception e){		// Se captura la posible excepción.
+				System.err.println("Error realizando las consultas.");
 			}
-			
-			
 		}
 		
 	}
