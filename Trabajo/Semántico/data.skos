@@ -15,6 +15,7 @@
 		<skos:prefLabel xml:lang="es">geologica</skos:prefLabel>
 		<skos:altLabel xml:lang="en">geology</skos:altLabel>
 		<skos:altLabel>minerologica</skos:altLabel>
+		<skos:altLabel>geologia</skos:altLabel>
 		<skos:altLabel>sedimentaria</skos:altLabel>
 	</skos:Concept>
 	<skos:Concept rdf:about="http://trabajos_skos.com/skos#enfermedad">
@@ -33,6 +34,7 @@
 		<skos:prefLabel xml:lang="es">infecciosa</skos:prefLabel>
 		<skos:altLabel>contagioso</skos:altLabel>
 		<skos:altLabel>infectado</skos:altLabel>
+		<skos:altLabel>epidemiologica</skos:altLabel>
 		<skos:altLabel>contaminado</skos:altLabel>
 		<skos:altLabel>infección</skos:altLabel>
 	</skos:Concept>
