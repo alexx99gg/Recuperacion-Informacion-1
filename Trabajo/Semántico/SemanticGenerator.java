@@ -1,3 +1,5 @@
+package trabajo;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +20,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 public class SemanticGenerator {
 	
 	private static final int IDENTIFICADOR = 0, AUTOR = 1, PUBLICADOR = 2, FECHA = 3, DESCRIPCION = 4,
-			IDIOMA = 5, TITULO = 6;
+			IDIOMA = 5, TITULO = 6, TEMA = 7;
 	private static Model model;
 
 	/*
@@ -37,7 +39,7 @@ public class SemanticGenerator {
 		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
 			
 			obtenerDocs(args[5]);		// Se obtienen los documentos.
-			
+
 			obtenerSkos(args[3], args[1]);		// Se obtene el skos.
 			
 		}
@@ -91,6 +93,8 @@ public class SemanticGenerator {
      	Property titulo = model.createProperty(prefijo + "titulo");
      	Property fecha = model.createProperty(prefijo + "fecha");
      	Property idioma = model.createProperty(prefijo + "idioma");
+     	Property tema = model.createProperty(prefijo + "tema");
+     	
      	/*
 		 * FALTA TEMAS QUE VA CON EL SKOS
 		 */
@@ -155,6 +159,14 @@ public class SemanticGenerator {
         	model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
         			.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
 						.addLiteral(titulo, contenido.get(0));
+        	
+        	//Se crean temas.
+        	contenido = etiq.get(TEMA).getContenido();
+        	for(int k=0; k<contenido.size(); k++){
+        		model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
+        				.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
+        					.addProperty(tema, prefijo + contenido.get(k));
+        	}
 			
 		}
 		

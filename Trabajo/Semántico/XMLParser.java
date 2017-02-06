@@ -1,3 +1,4 @@
+package trabajo;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class XMLParser {
 	    ArrayList<String> autores = new ArrayList<String>();
 	    ArrayList<String> publicadores = new ArrayList<String>();
 	    ArrayList<String> fechas = new ArrayList<String>();
+	    ArrayList<String> temas = new ArrayList<String>();
 	    try {
 	    	// Crea el objeto que hará el parser del XML.
 	    	DocumentBuilder builder = factory.newDocumentBuilder();
@@ -118,6 +120,12 @@ public class XMLParser {
 	        			if(!titulos.contains(contenido)){
 	        				titulos.add(contenido);
 	        			}
+	        			String[] palabrasTitulo = contenido.split(" ");
+	        			for(int j = 0; j < palabrasTitulo.length; j++) {
+	        				if(!temas.contains(palabrasTitulo[j])) {
+	        					temas.add(palabrasTitulo[j]);
+	        				}
+	        			}
 	        			// Añade las posibles fechas en el campo title.
 	        			fechas = anadirFecha(contenido, fechas);
 	        			break;
@@ -142,6 +150,7 @@ public class XMLParser {
 	        etiq.add(new Etiqueta("Descripciones", descripciones));
 	        etiq.add(new Etiqueta("Idiomas", idiomas));	        
 	        etiq.add(new Etiqueta("Titulos", titulos));
+	        etiq.add(new Etiqueta("Temas",temas));
 	        return etiq;	// Se devuelve la etiqueta.
 	    } catch (Exception e) {	// Se captura la posible excepción.
 	    	System.err.println("Error en el parser "+ fichero + ": " + e.getMessage());
