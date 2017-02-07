@@ -120,6 +120,7 @@ public class XMLParser {
 	        			if(!titulos.contains(contenido)){
 	        				titulos.add(contenido);
 	        			}
+	        			//Se crean las etiquetas de temas con datos del titulo.
 	        			String[] palabrasTitulo = contenido.split(" ");
 	        			for(int j = 0; j < palabrasTitulo.length; j++) {
 	        				if(!temas.contains(palabrasTitulo[j])) {
@@ -143,6 +144,7 @@ public class XMLParser {
 	        if(idiomas.isEmpty()){	// Miramos si no tenía idioma.
 	        	idiomas.add("español");
 	        }
+	        //Se introducen los datos obtenidos.
 	        etiq.add(new Etiqueta("Identificadores", identificadores));
 	        etiq.add(new Etiqueta("Autores", autores));
 	        etiq.add(new Etiqueta("Publicadores", publicadores));

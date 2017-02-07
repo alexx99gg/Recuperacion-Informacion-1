@@ -19,22 +19,16 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 public class SemanticGenerator {
 	
+	//Indices de los campos de las etiquetas.
 	private static final int IDENTIFICADOR = 0, AUTOR = 1, PUBLICADOR = 2, FECHA = 3, DESCRIPCION = 4,
 			IDIOMA = 5, TITULO = 6, TEMA = 7;
-	private static Model model;
+	
+	private static Model model;		//Modelo a crear.
 
 	/*
 	 * Método principal que lanza toda la ejecución.
 	 */
 	public static void main(String[] args){
-		
-		args = new String[6];
-		args[0] = "-rdf";
-		args[1] = "grafo.rdf";
-		args[2] = "-skos";
-		args[3] = "data.skos";
-		args[4] = "-docs";
-		args[5] = "recordsdc";
 		
 		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
 			
@@ -52,6 +46,7 @@ public class SemanticGenerator {
 	 */
 	private static boolean comprobarArgumentos(String [] args){
 		
+		//Si los parametros son erroneos se muestra el error.
 		if(args.length != 6 || !args[0].equals("-rdf") || !args[2].equals("-skos")
 				|| !args[4].equals("-docs")){		// Se comprueban parámetros.
 			System.err.println("Usar: java SemanticGenerator -rdf <rdfPath> "
@@ -59,10 +54,12 @@ public class SemanticGenerator {
 			return false;
 		}
 		File dirDocs = new File(args[5]);		// Se mira el directorio de documentos.
+		//Si el directorio no existe se muestra el error.
 		if(!dirDocs.isDirectory() || !dirDocs.canRead()){
 			System.err.println("El directorio de documentos no existe o no se puede leer.");
 			return false;
 		}
+		//Si el fichero no existe se muestra el error.
 		File fileSkos = new File(args[3]);			// Se mira fichero de skos.
 		if(!fileSkos.isFile() || !fileSkos.canRead()){
 			System.err.println("El archivo de skos no existe o no se puede leer.");
@@ -82,8 +79,10 @@ public class SemanticGenerator {
 		
 		// Se crea un modelo vacío.
         model = ModelFactory.createDefaultModel();
+        
         // Se crean las distintas propiedades.
         String prefijo = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+        String skos = "http://trabajos_skos.com/skos#";	// Prefijo del skos.
      	Property nombreOrg = model.createProperty(prefijo + "nombreOrg");
      	Property nombrePer = model.createProperty(prefijo + "nombrePer");
      	Property autor = model.createProperty(prefijo + "autor");
@@ -94,10 +93,6 @@ public class SemanticGenerator {
      	Property fecha = model.createProperty(prefijo + "fecha");
      	Property idioma = model.createProperty(prefijo + "idioma");
      	Property tema = model.createProperty(prefijo + "tema");
-     	
-     	/*
-		 * FALTA TEMAS QUE VA CON EL SKOS
-		 */
 
 		for(int i=0; i<files.length; i++){		// Se recorre la lista...
 			
@@ -160,12 +155,12 @@ public class SemanticGenerator {
         			.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
 						.addLiteral(titulo, contenido.get(0));
         	
-        	//Se crean temas.
+        	//Se crean los temas.
         	contenido = etiq.get(TEMA).getContenido();
         	for(int k=0; k<contenido.size(); k++){
         		model.getResource(prefijo + etiq.get(IDENTIFICADOR).getContenido()
         				.get(etiq.get(IDENTIFICADOR).getContenido().size()-1))
-        					.addProperty(tema, prefijo + contenido.get(k));
+        					.addProperty(tema, skos + contenido.get(k));
         	}
 			
 		}
@@ -199,8 +194,6 @@ public class SemanticGenerator {
 				concepto.addProperty(altLabel,alternativas.get(j));
 			}
 		}
-        
-        model.write(System.out);
         
 		try {		// Se guarda en un fichero el rdf.
 			model.write(new FileOutputStream(new File(salida)));

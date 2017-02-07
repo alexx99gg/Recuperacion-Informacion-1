@@ -1,3 +1,5 @@
+package trabajo;
+
 import java.util.ArrayList;
 
 /**
