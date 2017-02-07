@@ -52,8 +52,8 @@ public class SemanticSearcher {
 							Resource nombre = sol.getResource("doc");
 							String recurso = nombre.getURI();
 							// Se obtiene su identificador.
-							String docId = recurso.substring(recurso.indexOf(":")+1,recurso.length());
-							docId = docId.substring(docId.indexOf(":")+1,docId.length());
+							String docId = recurso.substring(recurso.lastIndexOf(":")+1,recurso.length());
+							//docId = docId.substring(docId.indexOf(":")+1,docId.length());
 							// Se escribe en el fichero de salida.
 							ficheroSal.println(identificador + "\t" + docId);
 						}
