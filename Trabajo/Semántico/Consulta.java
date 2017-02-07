@@ -1,5 +1,3 @@
-package trabajo;
-
 
 /**
  * Clase que representa una abstracción de una consulta

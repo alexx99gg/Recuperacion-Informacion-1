@@ -1,4 +1,3 @@
-package trabajo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -98,7 +97,6 @@ public class Evaluation {
 			// Se leen los tres datos.
 			necesidad = relevancia.next();	// Se lee la necesidad.
 			docId = relevancia.next();		// Se lee el id del documento.
-			docId = docId.substring(docId.lastIndexOf("_")+1,docId.lastIndexOf("."));
 			ficherosJuicios.add(docId);		// Se añade a la lista el id del documento.
 			rele = relevancia.nextInt();	// Se obtiene la relevancia.
 			if(primero){	// Si es el primero se inicializan las variables.
@@ -124,6 +122,7 @@ public class Evaluation {
 	 */
 	private static void calcularMedidas(){
 		
+		boolean cambio = false;	// Booleano que indica si se han llegado a 45.
 		double relevante = 0, total = 0;		// Variables para el cálculo.
 		double totalRelevante = 0;	// Número total de documentos relevantes.
 		String necesidad = null, necAnterior = null;	// Variables para leer del fichero.
@@ -134,9 +133,14 @@ public class Evaluation {
 		boolean primero = true;	// Booleano para saber si es el primero.
 		ArrayList<Par> precisionRecall = null;	// Array para la curva precisión-recall.
 		int indiceNecesidad = 0, indiceJuicio = 0;		// Índices para recorrer las listas.
+		int numeroRecuperados = 0;
 		while(docRecuperados.hasNextLine()){	// Se recorre todo el fichero.
 			// Se leen las variables del fichero.
-			necesidad = docRecuperados.next();		// Se lee la necesidad.
+			if(!cambio){
+				necesidad = docRecuperados.next();		// Se lee la necesidad.
+			} else{
+				cambio = false;
+			}	
 			docId = docRecuperados.next();		// Se lee el id del documento.
 			if(primero){		// Si es el primero, se inicializan las variables.
 				System.out.println("Realizando evaluación de la necesidad " + necesidad);
@@ -152,7 +156,7 @@ public class Evaluation {
 				// Crea el array para la curva precision-recall.
 				precisionRecall = new ArrayList<Par>(recallDoc.size());
 			}
-			if(!necAnterior.equals(necesidad)){	// Comprueba si se ha terminado la primera necesidad.
+			if(!necAnterior.equals(necesidad) && numeroRecuperados<45){	// Comprueba si se ha terminado la primera necesidad.
 				// Calcular medidas.
 				calcularMedidas(relevante, total, totalRelevante, precisionRecall, 
 						precision10, precisionProm, necAnterior);
@@ -168,9 +172,15 @@ public class Evaluation {
 				indiceJuicio += recallDoc.size();
 				// Crea el array para la curva precision-recall.
 				precisionRecall = new ArrayList<Par>(recallDoc.size());
+				numeroRecuperados = 1;	// Número de documentos recuperados de esa necesidad.
 			}
 			// Acumula las medidas.
-			int rele = juicios.get(necesidad).get(docId);	// Obtiene si es relevante el documento.
+			int rele = 0;	// Variable para saber si un documento es relevante.
+			try{
+				rele = juicios.get(necesidad).get(docId);	// Obtiene si es relevante el documento.
+			} catch(NullPointerException e){
+				rele = 0;
+			}
 			relevante = relevante + rele;	// Actualiza el número de relevantes.
 			total++;		// Actualiza el número de documentos leídos.
 			if(rele == 1){	// Si el documento es relevante...
@@ -183,7 +193,37 @@ public class Evaluation {
 			if(total==10){	// Se comprueba si van 10 leídos para el precision10.
 				precision10 = relevante/total;
 			}
-			docRecuperados.nextLine();		// Se pasa a la siguiente línea.
+			numeroRecuperados++;
+			if(numeroRecuperados == 45){
+				// Calcular medidas.
+				calcularMedidas(relevante, total, totalRelevante, precisionRecall, 
+						precision10, precisionProm, necAnterior);
+				if(!primero){
+					System.out.println("Realizando evaluación de la necesidad " + necesidad);
+				}
+				relevante = 0; total = 0; precisionProm = 0.0; precision10 = 0.0;
+				// Obtiene el map documento-relevancia de la siguiente necesidad.
+				Map <String, Integer> recallDoc = juicios.get(necesidades.get(indiceNecesidad));
+				indiceNecesidad++;		// Actualiza el índice de la necesidad.
+				// Obtiene el número de documentos relevantes para la necesidad.
+				totalRelevante = obtenerRelevantes(recallDoc,indiceJuicio);
+				// Actualiza el índice de juicios para colocarlo en la siguiente necesidad.
+				indiceJuicio += recallDoc.size();
+				// Crea el array para la curva precision-recall.
+				precisionRecall = new ArrayList<Par>(recallDoc.size());
+				numeroRecuperados = 1;	// Número de documentos recuperados de esa necesidad.
+				docRecuperados.nextLine();		// Se pasa a la siguiente línea.
+				String identificador = docRecuperados.next();
+				while(identificador.equals(necAnterior)){
+					docRecuperados.nextLine();
+					identificador = docRecuperados.next();
+				}
+				necAnterior = identificador;	// Actualiza las variables.
+				necesidad = identificador;	
+				cambio = true;
+			} else{
+				docRecuperados.nextLine();		// Se pasa a la siguiente línea.
+			}
 		}
 		// Calcular medidas para el último leído.
 		calcularMedidas(relevante, total, totalRelevante, precisionRecall, 

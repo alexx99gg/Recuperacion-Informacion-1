@@ -1,4 +1,3 @@
-package trabajo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,6 +25,16 @@ public class SemanticSearcher {
 	 */
 	public static void main(String[] args){
 		
+		args = new String [8];
+		args[0] = "-rdf";
+		args[1] = "grafo.rdf";
+		args[2] = "-rdfs";
+		args[3] = "modelo_03.xml";
+		args[4] = "-infoNeeds";
+		args[5] = "necesidades.txt";
+		args[6] = "-output";
+		args[7] = "salida.txt";
+		
 		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
 			try{
 				// Se crea el objeto para escribir en el fichero.
@@ -34,6 +43,9 @@ public class SemanticSearcher {
 				// Obtenemos el modelo del fichero.
 				FileManager.get().addLocatorClassLoader(SemanticSearcher.class.getClassLoader());
 				Model model = FileManager.get().loadModel(args[1]);
+				
+				// Creamos el prefijo del fichero.
+				String prefijo = "oai_zaguan.unizar.es_";
 				
 				// Se obtiene la consulta.
 				ArrayList<Consulta> consultas = ConsultaParser.obtenerConsulta(new File(args[5]));
@@ -53,7 +65,9 @@ public class SemanticSearcher {
 							String recurso = nombre.getURI();
 							// Se obtiene su identificador.
 							String docId = recurso.substring(recurso.lastIndexOf(":")+1,recurso.length());
-							//docId = docId.substring(docId.indexOf(":")+1,docId.length());
+							docId = docId.substring(docId.indexOf(":")+1,docId.length());
+							docId = prefijo + docId + ".xml";
+							System.out.println(docId);
 							// Se escribe en el fichero de salida.
 							ficheroSal.println(identificador + "\t" + docId);
 						}
