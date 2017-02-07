@@ -1,5 +1,3 @@
-package trabajo;
-
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,6 +27,14 @@ public class SemanticGenerator {
 	 * Método principal que lanza toda la ejecución.
 	 */
 	public static void main(String[] args){
+		
+		args = new String [6];
+		args[0] = "-rdf";
+		args[1] = "grafo.rdf";
+		args[2] = "-skos";
+		args[3] = "data.skos";
+		args[4] = "-docs";
+		args[5] = "recordsdc";
 		
 		if(comprobarArgumentos(args)){ // Se comprueban los argumentos.
 			

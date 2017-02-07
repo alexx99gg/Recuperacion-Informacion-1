@@ -46,14 +46,14 @@ public class SemanticSearcher {
 					ResultSet resultados = qexec.execSelect();
 					if(resultados != null) {
 						// Si hay resultados se muestran.
-						while(resultados.hasNext()) {
+						for(int j = 0; j < 45 && resultados.hasNext(); j++) {
 							// Se obtiene el resultado.
 							QuerySolution sol = resultados.next();
 							Resource nombre = sol.getResource("doc");
 							String recurso = nombre.getURI();
 							// Se obtiene su identificador.
 							String docId = recurso.substring(recurso.lastIndexOf(":")+1,recurso.length());
-							//docId = docId.substring(docId.indexOf(":")+1,docId.length());
+							docId = "oai_zaguan.unizar.es_" + docId + ".xml";
 							// Se escribe en el fichero de salida.
 							ficheroSal.println(identificador + "\t" + docId);
 						}
