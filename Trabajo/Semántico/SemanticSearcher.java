@@ -37,7 +37,7 @@ public class SemanticSearcher {
 				
 				// Se obtiene la consulta.
 				ArrayList<Consulta> consultas = ConsultaParser.obtenerConsulta(new File(args[5]));
-				for(int i=0; i<1; i++){
+				for(int i=0; i<consultas.size(); i++){
 					String identificador = consultas.get(i).getIdentificador();
 					System.out.println("Ejecutando consulta " + identificador);
 					Query query = QueryFactory.create(consultas.get(i).getConsulta());

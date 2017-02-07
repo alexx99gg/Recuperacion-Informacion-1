@@ -36,6 +36,8 @@ public class SemanticGenerator {
 
 			obtenerSkos(args[3], args[1]);		// Se obtene el skos.
 			
+			System.out.println("Fin de la ejecución.");
+			
 		}
 		
 	}
@@ -72,6 +74,8 @@ public class SemanticGenerator {
 	 * Método que obtiene las etiquetas de los documentos.
 	 */
 	private static void obtenerDocs(String direc){
+		
+		System.out.println("Creando modelo RDF de los documentos.");
 		
 		File directorio = new File(direc);	// Se crea el objeto con el directorio.
 		
@@ -172,6 +176,8 @@ public class SemanticGenerator {
 	 * al sistema.
 	 */
 	private static void obtenerSkos(String fich, String salida){
+
+		System.out.println("Creando modelo terminológico.");
 		
 		File fichero = new File(fich);	// Se crea el objeto con el fichero.	
 		XMLParser parser = new XMLParser(fichero.getPath());	// Se crea el parser
